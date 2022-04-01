@@ -1,0 +1,16 @@
+name: python3
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7
+  - codecov
+  - fastapi
+  - uvicorn
+  - motor
+  - requests
+  - oauthlib
+  - pyjwt
+  - passlib
+  - aiocache
+  - msal
