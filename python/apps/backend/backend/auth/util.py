@@ -134,7 +134,7 @@ async def create_internal_access_token(access_token_data: InternalAccessTokenDat
 	expire = datetime.datetime.utcnow() + expires_delta
 	to_encode.update(dict(exp=expire))
 	encoded_jwt = jwt_encode(to_encode, config.JWT_SECRET_KEY, algorithm=config.ALGORITHM)
-
+	print(encoded_jwt)
 	return encoded_jwt.decode('utf-8')
 
 

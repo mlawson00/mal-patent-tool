@@ -27,7 +27,7 @@ from backend.exceptions import (
 	exception_handling,
 )
 from backend.models.db_models import (
-	InternalUser,
+	InternalUser,postgresInternalUser
 )
 from backend.models.auth_models import (
 	ExternalAuthToken,
@@ -35,9 +35,14 @@ from backend.models.auth_models import (
 	InternalAccessTokenData,
 )
 
+from backend.models.base import (
+	engine,Session, Base
+)
+
 
 logger = logging.getLogger(__name__)
-
+Base.metadata.create_all(engine)
+session = Session()
 app = FastAPI()
 
 # Allow CORS. DON'T do that on production!
@@ -56,7 +61,7 @@ csrf_token_redirect_cookie_scheme = auth_schemes.CSRFTokenRedirectCookieBearer()
 auth_token_scheme = auth_schemes.AuthTokenBearer()
 access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
 
-
+#TURN OFF SOMETIMES
 @app.on_event("startup")
 async def startup_event():
 	""" Startup functionality """
@@ -147,7 +152,21 @@ async def google_login_callback(
 		internal_user = await db_client.get_user_by_external_sub_id(external_user)
 
 		if internal_user is None:
+
+			# pg_int = postgresInternalUser(external_user.email,
+			# 					 external_user.username,
+			# 					 external_user.external_sub_id)
+			# session = Session()
+			# session.add(pg_int)
+			# session.commit()
+			# session.close()
+
+
+
+
 			internal_user = await db_client.create_internal_user(external_user)
+
+			#INSERT TEST FUNCTION
 
 		#problems here
 		internal_auth_token = await auth_util.create_internal_auth_token(internal_user)
@@ -193,6 +212,16 @@ async def azure_login_callback(
 		internal_user = await db_client.get_user_by_external_sub_id(external_user)
 
 		if internal_user is None:
+
+			pg_int = postgresInternalUser(external_user["internal_sub_id"],
+								 external_user["external_sub_id"],
+								 external_user["username"],
+								 external_user["created_at"])
+			session = Session()
+			session.add(pg_int)
+			session.commit()
+			session.close()
+
 			internal_user = await db_client.create_internal_user(external_user)
 
 		internal_auth_token = await auth_util.create_internal_auth_token(internal_user)

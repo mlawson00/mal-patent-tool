@@ -27,6 +27,7 @@ from backend.models.auth_models import (
 
 logger = logging.getLogger(__name__)
 
+#doesn't seem to get used
 def get_db_client(db_type):
 	""" Works out the correct database client based on
 		the database type provided in the configuration

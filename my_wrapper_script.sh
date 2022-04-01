@@ -3,13 +3,11 @@
 conda activate python3
 # Start the first process
 echo "about the run uvicorn $(conda list)"
-cd ../../backend
+#go into the "apps" folder to run uvicorn due to the way the project was set up
+cd ..
 echo "about the run uvicorn changed directory $(ls)"
-uvicorn app.main:app --host 0.0.0.0:8000 --reload
-uvicorn backend.backend.main:app --host 0.0.0.0:8000 --reload
+uvicorn backend.main:app & npm start --prefix frontend
 # Start the second process
-#cd ../../frontend/app & npm start
-
 # Wait for any process to exit
 wait -n
 

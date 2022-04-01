@@ -26,7 +26,7 @@ RUN conda activate python3
 
 
 
-COPY python/apps/backend apps/backend
+COPY python/apps/backend/backend apps/backend
 
 #RUN curl https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o Miniconda3-latest-Linux-x86_64.sh
 #RUN bash Miniconda3-latest-Linux-x86_64.sh -b
@@ -44,5 +44,5 @@ RUN npm install
 #WORKDIR ../../backend/app
 COPY my_wrapper_script.sh ../../my_wrapper_script.sh
 RUN ["chmod", "+x", "../../my_wrapper_script.sh"]
-ENTRYPOINT ["tail", "-f", "/dev/null"]
-#CMD ../../my_wrapper_script.sh
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD ../../my_wrapper_script.sh

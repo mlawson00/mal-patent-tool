@@ -1,6 +1,20 @@
 version: "3"
 
 services:
+  postgres:
+    hostname: postgres
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: usr
+      POSTGRES_DB: sqlalchemy
+
+    ports:
+      - 5432:5432
+    networks:
+      - stack
+
   mongodb:
     hostname: mongodb
     container_name: mongodb
@@ -34,6 +48,7 @@ services:
       - 8000:8000
     networks:
       - stack
+
 
 networks:
   stack: {}
