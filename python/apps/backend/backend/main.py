@@ -233,7 +233,7 @@ async def azure_login_callback(
 		response.delete_cookie(key="state")
 
 		return response
-
+#
 
 @app.get("/login/")
 async def login(
