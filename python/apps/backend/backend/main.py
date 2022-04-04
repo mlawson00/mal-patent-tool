@@ -27,11 +27,12 @@ from backend.exceptions import (
 	exception_handling,
 )
 from backend.models.db_models import (
-	InternalUser,postgresInternalUser
+	InternalUser, postgresInternalUser
 )
 from backend.models.auth_models import (
 	ExternalAuthToken,
 	ExternalUser,
+	postgresExternalUser,
 	InternalAccessTokenData,
 )
 
@@ -153,7 +154,7 @@ async def google_login_callback(
 
 		if internal_user is None:
 
-			# pg_int = postgresInternalUser(external_user.email,
+			# pg_int = postgresExternalUser(external_user.email,
 			# 					 external_user.username,
 			# 					 external_user.external_sub_id)
 			# session = Session()
@@ -212,7 +213,6 @@ async def azure_login_callback(
 		internal_user = await db_client.get_user_by_external_sub_id(external_user)
 
 		if internal_user is None:
-
 			pg_int = postgresInternalUser(external_user["internal_sub_id"],
 								 external_user["external_sub_id"],
 								 external_user["username"],
@@ -221,7 +221,6 @@ async def azure_login_callback(
 			session.add(pg_int)
 			session.commit()
 			session.close()
-
 			internal_user = await db_client.create_internal_user(external_user)
 
 		internal_auth_token = await auth_util.create_internal_auth_token(internal_user)
@@ -252,6 +251,7 @@ async def login(
 			response: A JSON response with the status of the user's session
 	"""
 	async with exception_handling():
+		print('making an access token')
 		access_token = await auth_util.create_internal_access_token(
 			InternalAccessTokenData(
 				sub=internal_user.internal_sub_id,

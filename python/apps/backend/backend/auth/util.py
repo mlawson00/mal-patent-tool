@@ -83,7 +83,7 @@ async def create_internal_auth_token(internal_user: InternalUser) -> InternalAut
 
 	encoded_jwt = jwt_encode(
 		to_encode, config.JWT_SECRET_KEY, algorithm=config.ALGORITHM
-	).decode('utf-8')
+	)#.decode('utf-8')
 
 	# Add token/user pair in the cache
 	await cache.set(encoded_jwt, internal_user.internal_sub_id)
@@ -134,8 +134,8 @@ async def create_internal_access_token(access_token_data: InternalAccessTokenDat
 	expire = datetime.datetime.utcnow() + expires_delta
 	to_encode.update(dict(exp=expire))
 	encoded_jwt = jwt_encode(to_encode, config.JWT_SECRET_KEY, algorithm=config.ALGORITHM)
-	print(encoded_jwt)
-	return encoded_jwt.decode('utf-8')
+	print('this is the internal access token encoded_jwt',encoded_jwt)
+	return encoded_jwt#.decode('utf-8')
 
 
 async def validate_internal_access_token(internal_access_token: str) -> InternalUser:

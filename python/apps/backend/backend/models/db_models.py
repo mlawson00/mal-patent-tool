@@ -7,24 +7,29 @@ print(os.listdir())
 from backend.models.base import Base
 
 class InternalUser(BaseModel):
-	external_sub_id: str
 	internal_sub_id: str
+	external_sub_id: str
 	username: str
 	created_at: datetime.datetime
 
 class postgresInternalUser(Base):
     __tablename__ = 'postgresInternalUser'
 
-    email = Column(String, primary_key=True)
-    username = Column(String)
+    internal_sub_id = Column(String, primary_key=True)
     external_sub_id = Column(String)
+    username = Column(String)
+    created_at = Column(TIMESTAMP)
 
 
     def __init__(self,
-                 email,
+                 internal_sub_id,
+                 external_sub_id,
                  username,
-                 external_sub_id):
+                 created_at):
 
-        self.email = email
+        self.external_sub_id = internal_sub_id
+        self.internal_sub_id = external_sub_id
         self.username = username
-        self.external_sub_id = external_sub_id
+        self.created_at = created_at
+
+

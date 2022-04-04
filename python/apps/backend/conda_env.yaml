@@ -16,3 +16,5 @@ dependencies:
   - aiocache
   - msal
   - msgpack-python
+  - sqlalchemy
+  - psycopg2
