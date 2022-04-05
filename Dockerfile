@@ -45,4 +45,5 @@ RUN npm install
 COPY my_wrapper_script.sh ../../my_wrapper_script.sh
 RUN ["chmod", "+x", "../../my_wrapper_script.sh"]
 #ENTRYPOINT ["tail", "-f", "/dev/null"]
-CMD ../../my_wrapper_script.sh
+
+#CMD ../../my_wrapper_script.sh

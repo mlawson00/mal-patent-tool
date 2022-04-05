@@ -25,10 +25,9 @@ services:
   frontend:
     build:
       context: ./react/apps/frontend
-      target: prd
     stdin_open: true
     ports:
-      - 80:80
+      - 3000:3000
     networks:
       - stack
 
@@ -45,9 +44,9 @@ services:
       AZURE_CLIENT_SECRET:
       AZURE_TENANT_ID:
       JWT_SECRET_KEY:
-#    ports:
-#      - 5432:5432
- #     - 8000:8000
+    ports:
+      - 8000:8000
+      - - 5432:5432
     networks:
       - stack
 

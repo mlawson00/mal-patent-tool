@@ -5,7 +5,7 @@ class App extends Component {
 
   state = {
     producerLoginRedirectEndpoint: 'http://localhost:8000/login-redirect',
-    producerLoginEndpoint: 'http://localhost:8000/login/',
+    producerLoginEndpoint: 'api/login/',
     producerLogoutEndpoint: 'http://localhost:8000/logout/',
     producerLoginCheckEndpoint: 'http://localhost:8000/user-session-status/',
     userLoggedIn: false,

@@ -187,19 +187,23 @@ class MongoDBClient(DatabaseClient):
         self._users_coll = self._db["users"]
         self._session = None
 
+    # TODO change this
     @staticmethod
     def meets_condition(db_type):
         return db_type == config.MONGO_DB
 
+    # TODO change this
     async def close_connection(self):
         self._motor_client.close()
 
+    #TODO change this
     async def start_session(self):
         try:
             self._session = await self._motor_client.start_session()
         except ServerSelectionTimeoutError as exc:
             raise DatabaseConnectionError(exc)
 
+    # TODO change this
     async def end_session(self):
         await self._session.end_session()
 

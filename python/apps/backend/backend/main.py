@@ -63,11 +63,11 @@ auth_token_scheme = auth_schemes.AuthTokenBearer()
 access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
 
 #TURN OFF SOMETIMES
-@app.on_event("startup")
-async def startup_event():
-	""" Startup functionality """
-	async with exception_handling():
-		await db_client.start_session()
+# @app.on_event("startup")
+# async def startup_event():
+# 	""" Startup functionality """
+# 	async with exception_handling():
+# 		await db_client.start_session()
 
 
 @app.on_event("shutdown")
@@ -95,7 +95,7 @@ async def setup_request(request: Request, call_next) -> JSONResponse:
 	return response
 
 
-@app.get("/login-redirect")
+@app.get("/api/login-redirect")
 async def login_redirect(auth_provider: str):
 	""" Redirects the user to the external authentication pop-up
 
@@ -120,7 +120,7 @@ async def login_redirect(auth_provider: str):
 		return response
 
 
-@app.get("/google-login-callback/")
+@app.get("/api/google-login-callback/")
 async def google_login_callback(
 	request: Request,
 	_ = Depends(csrf_token_redirect_cookie_scheme)
@@ -182,7 +182,7 @@ async def google_login_callback(
 		return response
 
 
-@app.get("/azure-login-callback/")
+@app.get("/api/azure-login-callback/")
 async def azure_login_callback(
 	request: Request,
 	_ = Depends(csrf_token_redirect_cookie_scheme)
@@ -235,7 +235,7 @@ async def azure_login_callback(
 		return response
 #
 
-@app.get("/login/")
+@app.get("/api/login/")
 async def login(
 	response: JSONResponse,
 	internal_user: str = Depends(auth_token_scheme)
@@ -271,7 +271,7 @@ async def login(
 		return response
 
 
-@app.get("/logout/")
+@app.get("/api/logout/")
 async def logout(
 	response: JSONResponse,
 	internal_user: str = Depends(access_token_cookie_scheme)
@@ -296,7 +296,7 @@ async def logout(
 		return response
 
 
-@app.get("/user-session-status/")
+@app.get("/api/user-session-status/")
 async def user_session_status(
 	internal_user: InternalUser = Depends(access_token_cookie_scheme)
 ) -> JSONResponse:
