@@ -3,4 +3,4 @@ steps:
   args: [ 'build', '-t', 'gcr.io/${PROJECT_ID}/mal-patent-tool:${SHORT_SHA}', '.' ]
 options:
   machineType: 'E2_HIGHCPU_8'
-timeout: 10s
+timeout: 3600s
