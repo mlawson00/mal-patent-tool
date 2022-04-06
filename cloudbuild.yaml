@@ -3,7 +3,7 @@ steps:
   args:
   - --destination=gcr.io/${PROJECT_ID}/mal-patent-tool:${SHORT_SHA}
   - --cache=true
-  - --cache-ttl=100
+  - --cache-ttl=100h
 - name: gcr.io/kaniko-project/executor:latest
   args: [ 'push', 'gcr.io/${PROJECT_ID}/mal-patent-tool:${SHORT_SHA}']
 options:
