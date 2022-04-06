@@ -26,7 +26,7 @@ engine = sqlalchemy.create_engine(
         password=db_pass,  # e.g. "my-database-password"
         database=db_name,  # e.g. "my-database-name"
         query={
-            "unix_sock": "{}/{}/.s.PGSQL.5432".format(
+            "host": "{}/{}/.s.PGSQL.5432".format(
                 db_socket_dir,  # e.g. "/cloudsql"
                 instance_connection_name)  # i.e "<PROJECT-NAME>:<INSTANCE-REGION>:<INSTANCE-NAME>"
         }#
