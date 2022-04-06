@@ -21,7 +21,7 @@ engine = sqlalchemy.create_engine(
     # Note: Some drivers require the `unix_sock` query parameter to use a different key.
     # For example, 'psycopg2' uses the path set to `host` in order to connect successfully.
     sqlalchemy.engine.url.URL.create(
-        drivername="postgresql+pg8000",
+        drivername="psycopg2",
         username=db_user,  # e.g. "my-database-user"
         password=db_pass,  # e.g. "my-database-password"
         database=db_name,  # e.g. "my-database-name"
