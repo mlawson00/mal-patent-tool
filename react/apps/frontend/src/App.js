@@ -4,10 +4,10 @@ import React, { Component } from 'react';
 class App extends Component {
 
   state = {
-    producerLoginRedirectEndpoint: 'http://localhost:8000/login-redirect',
+    producerLoginRedirectEndpoint: 'api/login-redirect',
     producerLoginEndpoint: 'api/login/',
-    producerLogoutEndpoint: 'http://localhost:8000/logout/',
-    producerLoginCheckEndpoint: 'http://localhost:8000/user-session-status/',
+    producerLogoutEndpoint: 'api/logout/',
+    producerLoginCheckEndpoint: 'api/user-session-status/',
     userLoggedIn: false,
     userName: null,
   }

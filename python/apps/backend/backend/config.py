@@ -21,7 +21,7 @@ MONGODB_DATABASE = "testdb"
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
-GOOGLE_REDIRECT_URL = "http://localhost:8000/google-login-callback"
+GOOGLE_REDIRECT_URL = "http://localhost/api/google-login-callback"
 
 # Azure login
 AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID", None)
@@ -32,7 +32,7 @@ AZURE_DISCOVERY_URL = f"{AZURE_AUTHORITY}/v2.0/.well-known/openid-configuration"
 AZURE_REDIRECT_URL = "http://localhost:8000/azure-login-callback/"
 
 # Front end endpoint
-FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = "http://localhost"
 
 # JWT access token configuration
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", None)

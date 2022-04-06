@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/sqlalchemy</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="dopunugjf4v8b@ec2-34-246-227-219.eu-west-1.compute.amazonaws.com" uuid="7083ef3e-a44b-4b6a-9379-30c499adc866">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://ec2-34-246-227-219.eu-west-1.compute.amazonaws.com:5432/dopunugjf4v8b</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

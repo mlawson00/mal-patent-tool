@@ -31,5 +31,3 @@ class postgresInternalUser(Base):
         self.internal_sub_id = external_sub_id
         self.username = username
         self.created_at = created_at
-
-

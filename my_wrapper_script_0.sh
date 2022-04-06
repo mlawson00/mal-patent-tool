@@ -1,5 +1,5 @@
-#/bin/bash -ic "source ~/.bashrc"
 #!/bin/bash --login
+#/bin/bash -ic "source ~/.bashrc"
 conda activate python3
 # Start the first process
 echo "about the run uvicorn $(conda list)"
