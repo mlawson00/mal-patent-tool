@@ -18,7 +18,7 @@ RUN mkdir /apps/frontend
 
 
 COPY --from=setup /apps/frontend/build /usr/share/nginx/html/admin
-COPY --from=setup /apps/frontend/nginx.conf /etc/nginx/nginx.conf
+
 COPY python/apps/backend/conda_env.yaml apps/backend/conda-env.yml
 
 
@@ -29,7 +29,7 @@ RUN conda activate python3
 
 COPY python/apps/backend/backend apps/backend
 COPY my_wrapper_script.sh my_wrapper_script.sh
-
+COPY --from=setup /apps/frontend/nginx.conf /etc/nginx/nginx.conf
 RUN ["chmod", "+x", "my_wrapper_script.sh"]
-#CMD ./my_wrapper_script.sh
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD ./my_wrapper_script.sh
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
