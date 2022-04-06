@@ -29,7 +29,7 @@ engine = sqlalchemy.create_engine(
             "unix_sock": "{}/{}/.s.PGSQL.5432".format(
                 db_socket_dir,  # e.g. "/cloudsql"
                 instance_connection_name)  # i.e "<PROJECT-NAME>:<INSTANCE-REGION>:<INSTANCE-NAME>"
-        }
+        }#
     )
 )
 
