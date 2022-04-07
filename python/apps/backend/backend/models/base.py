@@ -12,32 +12,36 @@ db_pass = os.environ["DB_PASS"]
 db_name = os.environ["DB_NAME"]
 instance_connection_name = os.environ["INSTANCE_CONNECTION_NAME"]
 
-db_socket_dir = os.environ.get("DB_SOCKET_DIR", "/cloudsql")
-engine = sqlalchemy.create_engine(
+if "DB_SOCKET_DIR" in os.environ:
+    db_socket_dir = os.environ.get("DB_SOCKET_DIR", "/cloudsql")
+    engine = sqlalchemy.create_engine(
 
-    # Equivalent URL:
-    # postgresql+pg8000://<db_user>:<db_pass>@/<db_name>
-    #                         ?unix_sock=<socket_path>/<cloud_sql_instance_name>/.s.PGSQL.5432
-    # Note: Some drivers require the `unix_sock` query parameter to use a different key.
-    # For example, 'psycopg2' uses the path set to `host` in order to connect successfully.
-    sqlalchemy.engine.url.URL.create(
-        drivername="postgresql",
-        username=db_user,  # e.g. "my-database-user"
-        password=db_pass,  # e.g. "my-database-password"
-        database=db_name,  # e.g. "my-database-name"
-        query={
-            "host": "{}/{}".format(
-                db_socket_dir,  # e.g. "/cloudsql"
-                instance_connection_name)  # i.e "<PROJECT-NAME>:<INSTANCE-REGION>:<INSTANCE-NAME>"
-        }#
+        # Equivalent URL:
+        # postgresql+pg8000://<db_user>:<db_pass>@/<db_name>
+        #                         ?unix_sock=<socket_path>/<cloud_sql_instance_name>/.s.PGSQL.5432
+        # Note: Some drivers require the `unix_sock` query parameter to use a different key.
+        # For example, 'psycopg2' uses the path set to `host` in order to connect successfully.
+        sqlalchemy.engine.url.URL.create(
+            drivername="postgresql",
+            username=db_user,  # e.g. "my-database-user"
+            password=db_pass,  # e.g. "my-database-password"
+            database=db_name,  # e.g. "my-database-name"
+            query={
+                "host": "{}/{}".format(
+                    db_socket_dir,  # e.g. "/cloudsql"
+                    instance_connection_name)  # i.e "<PROJECT-NAME>:<INSTANCE-REGION>:<INSTANCE-NAME>"
+            }#
+        )
     )
-)
+else:
+    print('starting from here')
+    engine = sqlalchemy.create_engine('postgresql://usr:pass@0.0.0.0:5432/sqlalchemy')
 
 
 
 # engine = create_engine(f"postgresql://{os.environ['PG_USER']}:{os.environ['PG_PASS']}@{os.environ['PG_URL']}/{os.environ['PG_DB']}")
 
-#engine = create_engine('postgresql://usr:pass@0.0.0.0:5432/sqlalchemy')
+#
 
 Base = declarative_base()
 #Base.metadata.create_all(engine)
