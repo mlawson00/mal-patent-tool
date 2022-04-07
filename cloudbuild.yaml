@@ -6,7 +6,7 @@ steps:
   - --cache-ttl=100h
 - name: gcr.io/google.com/cloudsdktool/cloud-sdk
   entrypoint: gcloud
-  args: ['run', 'deploy', 'mal', '--image', "gcr.io/${PROJECT_ID}/mal-patent-tool:${SHORT_SHA}"]
+  args: ['run', 'deploy', 'mal', '--image', "gcr.io/${PROJECT_ID}/mal-patent-tool:${SHORT_SHA}",'--region', 'europe-west2']
 images:
 - gcr.io/${PROJECT_ID}/mal-patent-tool:${SHORT_SHA}
 options:

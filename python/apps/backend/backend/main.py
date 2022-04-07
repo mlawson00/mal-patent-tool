@@ -74,19 +74,19 @@ auth_token_scheme = auth_schemes.AuthTokenBearer()
 access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
 
 #TURN OFF SOMETIMES
-# @app.on_event("startup")
-# async def startup_event():
-# 	""" Startup functionality """
-# 	async with exception_handling():
-# 		await db_client.start_session()
+@app.on_event("startup")
+async def startup_event():
+	""" Startup functionality """
+	logging.info('startup up app')
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
 	""" Shutdown functionality """
-	async with exception_handling():
-		await db_client.end_session()
-		await db_client.close_connection()
+	logging.info('SHUTTING up app')
+	# async with exception_handling():
+	# 	await db_client.end_session()
+	# 	await db_client.close_connection()
 
 
 @app.middleware("http")
