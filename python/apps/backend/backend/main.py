@@ -122,16 +122,14 @@ async def login_redirect(auth_provider: str):
     async with exception_handling():
 
         #think this is an instance of class of GoogleAuthProvider
-
         provider = await auth_providers.get_auth_provider(auth_provider)
-        log.info(f'the provider is {provider}')
+        try:
+            log.info(f'the provider is {await provider}')
+        except:
+            log.info(f'cant log and awaited paremeter')
         request_uri, state_csrf_token = await provider.get_request_uri()
-        log.info(f'the request_uri is {request_uri}')
-        log.info(f'the state_csrf_token is {state_csrf_token}')
-
 
         response = RedirectResponse(url=request_uri)
-        log.info(f'the response is {response}')
 
         # Make this a secure cookie for production use
         response.set_cookie(key="state", value=f"Bearer {state_csrf_token}", httponly=True)
