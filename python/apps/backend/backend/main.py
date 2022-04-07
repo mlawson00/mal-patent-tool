@@ -40,7 +40,7 @@ from backend.models.base import (
     engine,Session, Base
 )
 
-import uvicorn, json_logging, logging, os, sys
+import uvicorn, logging, os, sys
 from fastapi import FastAPI
 
 import logging as log
