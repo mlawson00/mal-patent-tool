@@ -21,12 +21,12 @@ engine = sqlalchemy.create_engine(
     # Note: Some drivers require the `unix_sock` query parameter to use a different key.
     # For example, 'psycopg2' uses the path set to `host` in order to connect successfully.
     sqlalchemy.engine.url.URL.create(
-        drivername="psycopg2",
+        drivername="postgresql",
         username=db_user,  # e.g. "my-database-user"
         password=db_pass,  # e.g. "my-database-password"
         database=db_name,  # e.g. "my-database-name"
         query={
-            "host": "{}/{}/.s.PGSQL.5432".format(
+            "host": "{}/{}".format(
                 db_socket_dir,  # e.g. "/cloudsql"
                 instance_connection_name)  # i.e "<PROJECT-NAME>:<INSTANCE-REGION>:<INSTANCE-NAME>"
         }#
