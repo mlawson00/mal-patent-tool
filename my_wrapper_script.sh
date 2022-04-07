@@ -7,9 +7,10 @@ echo "about the run uvicorn $(conda list)"
 cd apps
 echo "about the run uvicorn changed directory $(ls)"
 #uvicorn backend.main:app & nginx
-echo "about the run uvicorn changed directory"
+
 nginx -g 'daemon off;'
 uvicorn backend.main:app
+python backend/main.py
 
 # Start the second process
 # Wait for any process to exit
