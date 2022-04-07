@@ -123,7 +123,10 @@ async def login_redirect(auth_provider: str):
 
         #think this is an instance of class of GoogleAuthProvider
         provider = await auth_providers.get_auth_provider(auth_provider)
-
+        try:
+            log.info(f'the provider is {await provider}')
+        except:
+            log.info(f'cant log and awaited paremeter')
         request_uri, state_csrf_token = await provider.get_request_uri()
 
         response = RedirectResponse(url=request_uri)
