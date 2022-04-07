@@ -136,7 +136,7 @@ async def login_redirect(auth_provider: str):
 
         # Make this a secure cookie for production use
         response.set_cookie(key="state", value=f"Bearer {state_csrf_token}", httponly=True)
-
+        log.info(f'you\'re on the response point now {response}')
         return response
 
 
@@ -175,22 +175,8 @@ async def google_login_callback(
 
         if internal_user is None:
 
-            # pg_int = postgresExternalUser(external_user.email,
-            # 					 external_user.username,
-            # 					 external_user.external_sub_id)
-            # session = Session()
-            # session.add(pg_int)
-            # session.commit()
-            # session.close()
-
-
-
-
             internal_user = await db_client.create_internal_user(external_user)
 
-            #INSERT TEST FUNCTION
-
-        #problems here
         internal_auth_token = await auth_util.create_internal_auth_token(internal_user)
 
         # Redirect the user to the home page
