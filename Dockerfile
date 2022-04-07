@@ -17,14 +17,15 @@ RUN mkdir /apps/backend
 RUN mkdir /apps/frontend
 
 
+
 COPY --from=setup /apps/frontend/build /usr/share/nginx/html/admin
 
-COPY python/apps/backend/conda_env.yaml apps/backend/conda-env.yml
+COPY python/apps/backend/conda_env.yaml apps/backend/conda-env.yaml
 
 
 RUN conda init bash
 SHELL ["/bin/bash", "--login", "-c"]
-RUN conda env create -f apps/backend/conda-env.yml
+RUN conda env create -f apps/backend/conda-env.yaml
 RUN conda activate python3
 
 COPY python/apps/backend/backend apps/backend
