@@ -130,6 +130,7 @@ async def login_redirect(auth_provider: str):
         except:
             log.info(f'cant log and awaited paremeter')
         request_uri, state_csrf_token = await provider.get_request_uri()
+        log.info(f'the request_uri {request_uri}')
 
         response = RedirectResponse(url=request_uri)
 
