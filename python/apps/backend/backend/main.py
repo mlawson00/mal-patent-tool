@@ -112,7 +112,6 @@ async def setup_request(request: Request, call_next) -> JSONResponse:
 async def login_redirect(auth_provider: str):
     log.info('startup up app yo ho')
     log.info(f'The redirect URL is meant to be {config.GOOGLE_REDIRECT_URL}')
-    GOOGLE_REDIRECT_URL
     """ Redirects the user to the external authentication pop-up
 
         Args:
