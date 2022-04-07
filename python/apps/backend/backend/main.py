@@ -110,6 +110,7 @@ async def setup_request(request: Request, call_next) -> JSONResponse:
 
 @app.get("/api/login-redirect")
 async def login_redirect(auth_provider: str):
+    log.info('startup up app yo ho')
     """ Redirects the user to the external authentication pop-up
 
         Args:
@@ -118,13 +119,13 @@ async def login_redirect(auth_provider: str):
         Returns:
             Redirect response to the external provider's auth endpoint
     """
-    logging.info('login-redirect')
+    log.info('login-redirect')
     async with exception_handling():
 
         #think this is an instance of class of GoogleAuthProvider
         provider = await auth_providers.get_auth_provider(auth_provider)
         try:
-            log.info(f'the provider is {await provider}')
+            log.info(f'the provider is {provider}')
         except:
             log.info(f'cant log and awaited paremeter')
         request_uri, state_csrf_token = await provider.get_request_uri()
@@ -153,7 +154,7 @@ async def google_login_callback(
         Args:
             request: The incoming request as redirected by Google
     """
-    logging.info('google callback')
+    log.info('google callback')
     async with exception_handling():
         code = request.query_params.get("code")
 
