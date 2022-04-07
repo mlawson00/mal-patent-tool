@@ -339,4 +339,4 @@ async def user_session_status(
 if __name__ == "__main__":
     log.info('startup up app')
     uvicorn.run(app, host="0.0.0.0", port=8000)
-	log.info('app should be running')
+    log.info('app should be running')
