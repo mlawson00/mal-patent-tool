@@ -79,7 +79,7 @@ access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
 @app.on_event("startup")
 async def startup_event():
     """ Startup functionality """
-    log.info('startup up app')
+    log.info('startup up app yo ho')
 
 
 @app.on_event("shutdown")
