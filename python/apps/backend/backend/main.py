@@ -195,6 +195,7 @@ async def google_login_callback(
 
         # Redirect the user to the home page
         redirect_url = f"{config.FRONTEND_URL}?authToken={internal_auth_token}"
+        log.info(f'the redirect url is supposed to be {redirect_url}')
         response = RedirectResponse(url=redirect_url)
 
         # Delete state cookie. No longer required
