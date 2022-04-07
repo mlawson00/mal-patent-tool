@@ -19,3 +19,5 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - pg8000
+  - pip:
+      json-logger

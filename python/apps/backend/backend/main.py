@@ -40,10 +40,39 @@ from backend.models.base import (
 	engine,Session, Base
 )
 
+import uvicorn, json_logging, logging, os, sys
+from fastapi import FastAPI
+
+PROJECT = 'mal'
+class CloudRunJSONLog(json_logging.JSONLogWebFormatter):
+    'Logger for Google Cloud Run correlating with the requests'
+    def _format_log_object(self, record, request_util):
+        json_log_object = super(CloudRunJSONLog, self)._format_log_object(record, request_util)
+
+        if 'correlation_id' in json_log_object and len(json_log_object['correlation_id'])>1:
+            trace = json_log_object['correlation_id'].split('/')
+            json_log_object["logging.googleapis.com/trace"]=f"projects/{PROJECT}/traces/{trace[0]}"
+
+        return json_log_object
+
+
+logging.basicConfig(level=logging.INFO)
+json_logging.CORRELATION_ID_HEADERS	= ['X-Cloud-Trace-Context']
+json_logging.init_fastapi(custom_formatter=CloudRunJSONLog, enable_json=True)
+json_logging.init_request_instrument(app)
+json_logging.config_root_logger()
+logging.info('Started in environment', extra=dict(props=dict(env=dict(**os.environ))) )
 
 logger = logging.getLogger(__name__)
+
+
+
+
+logging.info('Setting up sql')
 Base.metadata.create_all(engine)
+logging.info('Setting up session')
 session = Session()
+logging.info('Setting up app')
 app = FastAPI()
 
 # Allow CORS. DON'T do that on production!
@@ -105,6 +134,7 @@ async def login_redirect(auth_provider: str):
 		Returns:
 			Redirect response to the external provider's auth endpoint
 	"""
+	logging.info('login-redirect')
 	async with exception_handling():
 
 		#think this is an instance of class of GoogleAuthProvider
@@ -136,6 +166,7 @@ async def google_login_callback(
 		Args:
 			request: The incoming request as redirected by Google
 	"""
+	logging.info('google callback')
 	async with exception_handling():
 		code = request.query_params.get("code")
 
