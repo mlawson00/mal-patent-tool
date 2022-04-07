@@ -47,14 +47,16 @@ import logging as log
 logger = log.getLogger(__name__)
 
 import google.cloud.logging as logging
+logging_client = logging.Client()
+logging_client.setup_logging()
 
 
 
-logging.info('Setting up sql')
+log.info('Setting up sql')
 Base.metadata.create_all(engine)
-logging.info('Setting up session')
+log.info('Setting up session')
 session = Session()
-logging.info('Setting up app')
+log.info('Setting up app')
 app = FastAPI()
 
 # Allow CORS. DON'T do that on production!
@@ -77,13 +79,13 @@ access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
 @app.on_event("startup")
 async def startup_event():
 	""" Startup functionality """
-	logging.info('startup up app')
+	log.info('startup up app')
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
 	""" Shutdown functionality """
-	logging.info('SHUTTING up app')
+	log.info('SHUTTING up app')
 	# async with exception_handling():
 	# 	await db_client.end_session()
 	# 	await db_client.close_connection()
