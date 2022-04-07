@@ -43,28 +43,10 @@ from backend.models.base import (
 import uvicorn, json_logging, logging, os, sys
 from fastapi import FastAPI
 
-PROJECT = 'mal'
-class CloudRunJSONLog(json_logging.JSONLogWebFormatter):
-    'Logger for Google Cloud Run correlating with the requests'
-    def _format_log_object(self, record, request_util):
-        json_log_object = super(CloudRunJSONLog, self)._format_log_object(record, request_util)
+import logging as log
+logger = log.getLogger(__name__)
 
-        if 'correlation_id' in json_log_object and len(json_log_object['correlation_id'])>1:
-            trace = json_log_object['correlation_id'].split('/')
-            json_log_object["logging.googleapis.com/trace"]=f"projects/{PROJECT}/traces/{trace[0]}"
-
-        return json_log_object
-
-
-logging.basicConfig(level=logging.INFO)
-json_logging.CORRELATION_ID_HEADERS	= ['X-Cloud-Trace-Context']
-json_logging.init_fastapi(custom_formatter=CloudRunJSONLog, enable_json=True)
-json_logging.init_request_instrument(app)
-json_logging.config_root_logger()
-logging.info('Started in environment', extra=dict(props=dict(env=dict(**os.environ))) )
-
-logger = logging.getLogger(__name__)
-
+import google.cloud.logging as logging
 
 
 

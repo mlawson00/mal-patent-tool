@@ -19,6 +19,4 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - pg8000
-  - pip
-  - pip:
-      json-logger
+  - google-cloud-logging
