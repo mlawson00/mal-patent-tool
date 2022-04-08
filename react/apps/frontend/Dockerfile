@@ -13,6 +13,7 @@ WORKDIR /app
 COPY . /app
 RUN npm install
 
+
 FROM setup as dev
 CMD ["npm", "start"]
 
