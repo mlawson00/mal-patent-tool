@@ -7,7 +7,7 @@ import os
 # Remember - storing secrets in plaintext is potentially unsafe. Consider using
 # something like https://cloud.google.com/secret-manager/docs/overview to help keep
 # secrets secret.
-
+#
 if "INSTANCE_CONNECTION_NAME" in os.environ:
     db_user = os.environ["DB_USER"]
     db_pass = os.environ["DB_PASS"]
