@@ -2,16 +2,10 @@ from abc import ABC, abstractmethod
 import datetime
 import hashlib
 import logging
-from typing import List
 from sqlalchemy import select
 from uuid import uuid4
 
-from motor.motor_asyncio import (
-    AsyncIOMotorClient,
-    AsyncIOMotorClientSession,
-)
 from passlib.hash import bcrypt
-from pymongo.errors import ServerSelectionTimeoutError
 
 from backend import config
 from backend.exceptions import (
@@ -178,7 +172,7 @@ class PostgresDBClient(DatabaseClient):
     # TODO change this
     @staticmethod
     def meets_condition(db_type):
-        return db_type == config.MONGO_DB
+        return db_type == config.DB_TYPE
 
     # TODO change this
     async def close_connection(self):
@@ -187,7 +181,7 @@ class PostgresDBClient(DatabaseClient):
     #TODO change this
     async def start_session(self):
         try:
-            self._session = await self._motor_client.start_session()
+            self._session = await Session()
         except ServerSelectionTimeoutError as exc:
             raise DatabaseConnectionError(exc)
 
