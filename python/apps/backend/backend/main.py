@@ -40,17 +40,17 @@ from backend.models.base import (
     engine,Session, Base
 )
 
-import uvicorn, logging, os, sys
+import uvicorn
 from fastapi import FastAPI
 
 import logging as log
 
 
-import google.cloud.logging as logging
+# import google.cloud.logging as logging
 
 logger = log.getLogger(__name__)
-logging_client = logging.Client()
-logging_client.setup_logging()
+# logging_client = logging.Client()
+# logging_client.setup_logging()
 
 log.info('Setting up sql')
 Base.metadata.create_all(engine)
@@ -192,6 +192,7 @@ async def google_login_callback(
 
 @app.get("/api/azure-login-callback/")
 async def azure_login_callback():
+    print('yo')
     pass
 #
 

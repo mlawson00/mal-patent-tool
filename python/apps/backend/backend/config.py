@@ -11,11 +11,6 @@ AZURE = "azure-oidc"
 # Selected database type to use
 DATABASE_TYPE = MONGO_DB
 
-# MongoDB Replica Set
-MONGODB_HOST = os.environ.get("MONGODB_HOST", "127.0.0.1")
-MONGODB_PORT = int(os.environ.get("MONGODB_PORT", 27017))
-MONGODB_COLLECTION = "testdb"
-MONGODB_DATABASE = "testdb"
 
 # Google login
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)

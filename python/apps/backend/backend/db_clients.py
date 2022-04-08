@@ -169,7 +169,7 @@ class DatabaseClient(ABC):
         return encrypted_external_sub_id
 
 
-class MongoDBClient(DatabaseClient):
+class PostgresDBClient(DatabaseClient):
     """ Wrapper around an AsyncIOMotorClient object. """
 
     def __init__(self):

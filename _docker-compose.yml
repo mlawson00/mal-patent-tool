@@ -15,13 +15,6 @@ services:
     networks:
       - stack
 
-#  mongodb:
-#    hostname: mongodb
-#    container_name: mongodb
-#    image: bitnami/mongodb:latest
-#    networks:
-#      - stack
-
   frontend:
     build:
       context: ./react/apps/frontend
