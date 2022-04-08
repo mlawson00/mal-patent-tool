@@ -149,6 +149,7 @@ class GoogleAuthProvider(AuthProvider):
 
 
 		if userinfo_response.json().get("email_verified"):
+			print(userinfo_response.json())
 			email = userinfo_response.json()["email"]
 			sub_id = userinfo_response.json()["sub"]
 			username = userinfo_response.json()["given_name"]
