@@ -2,7 +2,7 @@ FROM node:16.14.0 as setup
 
 RUN mkdir /app
 COPY package.json /app
-COPY nginx.conf /app
+COPY ../../../nginx.conf /app
 
 WORKDIR /app
 

@@ -30,7 +30,7 @@ RUN conda activate python3
 
 COPY python/apps/backend/backend apps/backend
 COPY my_wrapper_script.sh my_wrapper_script.sh
-COPY --from=setup /apps/frontend/nginx.conf /etc/nginx/nginx.conf
 RUN ["chmod", "+x", "my_wrapper_script.sh"]
+COPY nginx.conf /etc/nginx/nginx.conf
 CMD ./my_wrapper_script.sh
 #ENTRYPOINT ["tail", "-f", "/dev/null"]
