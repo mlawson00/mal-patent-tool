@@ -173,19 +173,7 @@ class PostgresDBClient(DatabaseClient):
     """ Wrapper around an AsyncIOMotorClient object. """
 
     def __init__(self):
-        mongodb_uri = (
-            f"mongodb://"
-            f"{config.MONGODB_HOST}:"
-            f"{config.MONGODB_PORT}/"
-            f"{config.MONGODB_DATABASE}?"
-            f"authSource={config.MONGODB_COLLECTION}"
-        )
-        self._motor_client = AsyncIOMotorClient(mongodb_uri)
-        # Mongo database
-        self._db = self._motor_client[config.MONGODB_DATABASE]
-        # Mongo collections
-        self._users_coll = self._db["users"]
-        self._session = None
+        pass
 
     # TODO change this
     @staticmethod
