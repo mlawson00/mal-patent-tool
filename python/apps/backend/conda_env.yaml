@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
   - anaconda
+  - esri
 dependencies:
   - python=3.7
   - codecov
