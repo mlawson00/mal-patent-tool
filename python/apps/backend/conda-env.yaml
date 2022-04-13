@@ -20,4 +20,4 @@ dependencies:
   - psycopg2
   - pip
   - pip:
-      tf-models-official==2.7.0
+    - tf-models-official==2.7.0
