@@ -6,6 +6,7 @@ channels:
   - esri
 dependencies:
   - python=3.7
+  - pycocotools
   - codecov
   - fastapi
   - uvicorn
