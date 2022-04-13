@@ -142,13 +142,13 @@ class App extends Component {
                     })
                 }
 
-                fetch('get_BERT_probs', requestOptions)
+                fetch('api/get_BERT_probs', requestOptions)
                     .then((response) => response.json())
                     .then((response)=> console.log(response))
 
             }
 
-            fetch('abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
+            fetch('api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
                 .then(setSearchedTerm(searchTerm))
         }
 

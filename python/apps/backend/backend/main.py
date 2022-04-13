@@ -41,7 +41,7 @@ from backend.models.auth_models import (
 )
 
 from backend.models.base import (
-    engine,Session, Base
+    engine, Session, Base
 )
 
 import uvicorn
@@ -49,10 +49,12 @@ from fastapi import FastAPI
 
 import logging as log
 
+
 class custom_bert_encoder:
     def __init__(self, vocab_file, max_len=128):
         self.bert = bert.tokenization.FullTokenizer(vocab_file)
         self.max_len = max_len
+
     def bert_encode(self, text):
         text = self.bert.tokenize(text)
         text = text[: self.max_len - 2]
@@ -61,34 +63,20 @@ class custom_bert_encoder:
         tokens = self.bert.convert_tokens_to_ids(input_sequence) + [0] * pad_len
         pad_masks = [1] * len(input_sequence) + [0] * pad_len
         segment_ids = [0] * self.max_len
-        return {"text":text, "input_mask":[pad_masks], "input_type_ids":[segment_ids], "input_word_ids":[tokens]}
+        return {"text": text, "input_mask": [pad_masks], "input_type_ids": [segment_ids], "input_word_ids": [tokens]}
 
-b = custom_bert_encoder('vocab.txt')
 
+b = custom_bert_encoder('backend/vocab.txt')
 
 
 class AbstractDraft(BaseModel):
     abstract: str
 
+
 class BERT_input(BaseModel):
     input_mask: list
     input_type_ids: list
     input_word_ids: list
-
-@app.post("/abstract_search")
-async def abstract_search(abstract_draft: AbstractDraft) -> AbstractDraft:
-    raw_data = jsonable_encoder(abstract_draft.abstract)
-
-    data = b.bert_encode(raw_data)
-    #output = requests.post('http://localhost:8080/invocations', json={"inputs": data})
-    return {"inputs": data}
-
-@app.post("/get_BERT_probs")
-async def make_cpc_pred(bert_input: BERT_input)->BERT_input:
-    probs = requests.post('http://mlflow-patentbert-6wcv5jbs7a-nw.a.run.app:8080/invocations', json={"inputs": bert_input.dict()})
-    return {'probs':json.loads(probs.text)}
-
-
 
 
 # import google.cloud.logging as logging
@@ -120,7 +108,8 @@ csrf_token_redirect_cookie_scheme = auth_schemes.CSRFTokenRedirectCookieBearer()
 auth_token_scheme = auth_schemes.AuthTokenBearer()
 access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
 
-#TURN OFF SOMETIMES
+
+# TURN OFF SOMETIMES
 @app.on_event("startup")
 async def startup_event():
     """ Startup functionality """
@@ -168,7 +157,7 @@ async def login_redirect(auth_provider: str):
     log.info('login-redirect')
     async with exception_handling():
 
-        #think this is an instance of class of GoogleAuthProvider
+        # think this is an instance of class of GoogleAuthProvider
         provider = await auth_providers.get_auth_provider(auth_provider)
         try:
             log.info(f'the provider is {provider}')
@@ -187,8 +176,8 @@ async def login_redirect(auth_provider: str):
 
 @app.get("/api/google-login-callback/")
 async def google_login_callback(
-    request: Request,
-    _ = Depends(csrf_token_redirect_cookie_scheme)
+        request: Request,
+        _=Depends(csrf_token_redirect_cookie_scheme)
 ):
     """ Callback triggered when the user logs in to Google's pop-up.
 
@@ -219,7 +208,6 @@ async def google_login_callback(
         internal_user = await db_client.get_user_by_external_sub_id(external_user)
 
         if internal_user is None:
-
             internal_user = await db_client.create_internal_user(external_user)
 
         internal_auth_token = await auth_util.create_internal_auth_token(internal_user)
@@ -239,12 +227,14 @@ async def google_login_callback(
 async def azure_login_callback():
     print('yo')
     pass
+
+
 #
 
 @app.get("/api/login/")
 async def login(
-    response: JSONResponse,
-    internal_user: str = Depends(auth_token_scheme)
+        response: JSONResponse,
+        internal_user: str = Depends(auth_token_scheme)
 ) -> JSONResponse:
     """ Login endpoint for authenticating a user after he has received
         an authentication token. If the token is valid it generates
@@ -276,11 +266,12 @@ async def login(
 
         return response
 
+
 #
 @app.get("/api/logout/")
 async def logout(
-    response: JSONResponse,
-    internal_user: str = Depends(access_token_cookie_scheme)
+        response: JSONResponse,
+        internal_user: str = Depends(access_token_cookie_scheme)
 ) -> JSONResponse:
     """ Logout endpoint for deleting the HTTPOnly cookie on the user's browser.
 
@@ -304,7 +295,7 @@ async def logout(
 
 @app.get("/api/user-session-status/")
 async def user_session_status(
-    internal_user: InternalUser = Depends(access_token_cookie_scheme)
+        internal_user: InternalUser = Depends(access_token_cookie_scheme)
 ) -> JSONResponse:
     """ User status endpoint for checking whether the user currently holds
         an HTTPOnly cookie with a valid access token.
@@ -326,6 +317,23 @@ async def user_session_status(
         )
 
         return response
+
+
+@app.post("/api/abstract_search")
+async def abstract_search(abstract_draft: AbstractDraft) -> AbstractDraft:
+    raw_data = jsonable_encoder(abstract_draft.abstract)
+
+    data = b.bert_encode(raw_data)
+    # output = requests.post('http://localhost:8080/invocations', json={"inputs": data})
+    return {"inputs": data}
+
+
+@app.post("/api/get_BERT_probs")
+async def make_cpc_pred(bert_input: BERT_input) -> BERT_input:
+    probs = requests.post('http://mlflow-patentbert-6wcv5jbs7a-nw.a.run.app:8080/invocations',
+                          json={"inputs": bert_input.dict()})
+    return {'probs': json.loads(probs.text)}
+
 
 if __name__ == "__main__":
     log.info('startup up app')
