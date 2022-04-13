@@ -20,7 +20,7 @@ RUN mkdir /apps/frontend
 
 COPY --from=setup /apps/frontend/build /usr/share/nginx/html/admin
 
-COPY python/apps/backend/conda_env.yaml apps/backend/conda-env.yaml
+COPY python/apps/backend/conda-env.yaml apps/backend/conda-env.yaml
 
 
 RUN conda init bash
