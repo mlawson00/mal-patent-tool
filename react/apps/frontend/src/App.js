@@ -13,7 +13,7 @@ class App extends Component {
     }
 
     componentDidMount() {
-        // this.authenticate()
+        this.authenticate()
     }
 
     setCookie = (cname, cvalue, exdays) => {
