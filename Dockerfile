@@ -22,7 +22,7 @@ COPY --from=setup /apps/frontend/build /usr/share/nginx/html/admin
 
 COPY python/apps/backend/conda-env.yaml apps/backend/conda-env.yaml
 
-
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
 RUN conda init bash
 SHELL ["/bin/bash", "--login", "-c"]
 RUN conda env create -f apps/backend/conda-env.yaml

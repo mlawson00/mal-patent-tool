@@ -1,5 +1,5 @@
 steps:
-- name: gcr.io/kaniko-project/executor:latest
+- name: gcr.io/kaniko-project/executor:v1.3.0
   #stop storing containers in usa then paying for transfer fees
   args:
   - --destination=gcr.io/${PROJECT_ID}/mal-patent-tool:${SHORT_SHA}
