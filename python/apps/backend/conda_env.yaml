@@ -18,6 +18,3 @@ dependencies:
   - msgpack-python
   - sqlalchemy
   - psycopg2
-  - pip
-  - pip:
-      tf-models-official==2.7.0
