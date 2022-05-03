@@ -1,0 +1,12 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+.env
+__pycache__/
+.DS_Store
+TF2_PatentBert_Raw
+/python/apps/inference_api/custom_embedding_array_0.parquet
+/mlflow/fp32_v1.parquet
+/mlflow/original.parquet
+/python/apps/inference_api/pandas_0.parquet
+/python/apps/inference_api/v1_0.parquet

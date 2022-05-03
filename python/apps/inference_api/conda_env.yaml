@@ -1,0 +1,17 @@
+channels:
+- conda-forge
+dependencies:
+- python
+- pip
+- pip:
+  - mlflow
+  - gcsfs
+  - fsspec
+  - cloudpickle
+  - pandas==1.3.5
+  - scikit-learn==1.0.2
+  - pyarrow
+  - fastapi
+  - uvicorn
+  - requests
+name: python3
