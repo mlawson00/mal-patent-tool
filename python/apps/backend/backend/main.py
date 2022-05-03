@@ -334,12 +334,10 @@ async def abstract_search(abstract_draft: AbstractDraft) -> AbstractDraft:
 
 @app.post("/api/get_BERT_probs")
 async def make_cpc_pred(bert_input: BERT_input) -> BERT_input:
-    auth_req = google.auth.transport.requests.Request()
-    audience = 'https://mlflow-patentbert-6wcv5jbs7a-nw.a.run.app'
-    id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
-    Headers ={"Authorization": f"Bearer {id_token}"}
+    id_token = google.oauth2.id_token.fetch_id_token(auth_req, 'https://mal-6wcv5jbs7a-nw.a.run.app')
+    Headers = {"Authorization": f"Bearer {id_token}"}
 
-    probs = requests.post(f'{audience}/invocations',
+    probs = requests.post('https://mlflow-patentbert-6wcv5jbs7a-nw.a.run.app/invocations',
                           headers=Headers, json={"inputs": bert_input.dict()})
     return {'probs': json.loads(probs.text)}
 
