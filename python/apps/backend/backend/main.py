@@ -7,7 +7,7 @@ import json
 from pydantic import BaseModel
 import google.auth.transport.requests
 import google.oauth2.id_token
-auth_req = google.auth.transport.requests.Request()
+import numpy as np
 
 from fastapi.encoders import jsonable_encoder
 from fastapi import (
@@ -22,7 +22,9 @@ from starlette.responses import (
     JSONResponse,
     RedirectResponse,
 )
-
+from dotenv import load_dotenv
+load_dotenv()
+auth_req = google.auth.transport.requests.Request()
 from backend.auth import (
     providers as auth_providers,
     schemes as auth_schemes,
@@ -86,6 +88,8 @@ class BERT_input(BaseModel):
 # import google.cloud.logging as logging
 
 logger = log.getLogger(__name__)
+import os
+print('GOOGLE_CLIENT_SECRET', os.environ['GOOGLE_CLIENT_SECRET'])
 # logging_client = logging.Client()
 # logging_client.setup_logging()
 
@@ -323,6 +327,67 @@ async def user_session_status(
         return response
 
 
+class probabilityInput(BaseModel):
+    probs: list
+
+class customEmbeddingOutput(BaseModel):
+    cpc_prob: list
+    raw_emb: list
+
+class PredictorInput(BaseModel):
+    embedding: list
+    k: int
+    use_custom_embeddings: bool
+    n: int
+    query:str
+    with_v1:bool
+
+
+import pandas as pd
+labels_frame = pd.read_csv('backend/labels_group_id.tsv', sep='\t')
+threshold=0.2
+
+
+@app.post("/api/give_similar_patents")
+async def give_similar_patents(input_args: PredictorInput) -> PredictorInput:
+
+
+    id_token = google.oauth2.id_token.fetch_id_token(auth_req, 'https://test-image-6wcv5jbs7a-nw.a.run.app/predict')
+    print(id_token)
+    Headers = {"Authorization": f"Bearer {id_token}"}
+
+    out = requests.post('https://test-image-6wcv5jbs7a-nw.a.run.app/predict', headers=Headers,
+    json = {"embedding": input_args.embedding,
+            'k': input_args.k,
+            'use_custom_embeddings': input_args.use_custom_embeddings,
+            'n': input_args.n,
+            'query': input_args.query,
+            'with_v1': input_args.with_v1})
+    return(out.text)
+
+
+@app.post("/api/give_likely_classes")
+async def give_likely_classes(probs: probabilityInput) -> probabilityInput:
+    raw_data = jsonable_encoder(probs.probs)[0]
+    probs_array = np.array(raw_data)
+    return_ob = labels_frame.loc[probs_array >= threshold]
+    return_ob.loc[:, 'probability (%)'] = np.round(probs_array[probs_array >= threshold] * 100, 2)
+    return_ob = return_ob.sort_values('probability (%)', ascending=False)
+    return {return_ob.to_json(orient='records')}
+
+@app.post("/api/give_custom_embedding")
+async def give_custom_embedding(probs: probabilityInput) -> probabilityInput:
+    raw_data = jsonable_encoder(probs.probs)
+
+    id_token = google.oauth2.id_token.fetch_id_token(auth_req, 'https://mlflow-ae-prototype-6wcv5jbs7a-nw.a.run.app')
+    Headers = {"Authorization": f"Bearer {id_token}"}
+    custom_embeddings = requests.post('https://mlflow-ae-prototype-6wcv5jbs7a-nw.a.run.app/invocations',
+                          headers=Headers, json={"inputs":raw_data})
+    # print(custom_embeddings.text)
+
+    return custom_embeddings.text
+
+
 @app.post("/api/abstract_search")
 async def abstract_search(abstract_draft: AbstractDraft) -> AbstractDraft:
     raw_data = jsonable_encoder(abstract_draft.abstract)
@@ -334,11 +399,14 @@ async def abstract_search(abstract_draft: AbstractDraft) -> AbstractDraft:
 
 @app.post("/api/get_BERT_probs")
 async def make_cpc_pred(bert_input: BERT_input) -> BERT_input:
-    id_token = google.oauth2.id_token.fetch_id_token(auth_req, 'https://mal-6wcv5jbs7a-nw.a.run.app')
+    id_token = google.oauth2.id_token.fetch_id_token(auth_req, 'https://mlflow-patentbert-6wcv5jbs7a-nw.a.run.app')
+    print('id_token_is', id_token)
     Headers = {"Authorization": f"Bearer {id_token}"}
 
     probs = requests.post('https://mlflow-patentbert-6wcv5jbs7a-nw.a.run.app/invocations',
                           headers=Headers, json={"inputs": bert_input.dict()})
+
+    print(probs.text)
     return {'probs': json.loads(probs.text)}
 
 

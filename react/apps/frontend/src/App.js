@@ -5,7 +5,7 @@ class App extends Component {
 
     state = {
         producerLoginRedirectEndpoint: 'api/login-redirect',
-        producerLoginEndpoint: 'api/login/',
+        producerLoginEndpoint: 'http://localhost:8000/api/login/',
         producerLogoutEndpoint: 'api/logout/',
         producerLoginCheckEndpoint: 'api/user-session-status/',
         userLoggedIn: false,
@@ -112,13 +112,124 @@ class App extends Component {
         const [searchedTerm, setSearchedTerm] = useState('')
         const [processedQuery, setProcessedQuery] = useState('')
         const [loading, setLoading] = useState(false)
+        const [probabilityJSX, setProbabilityJSX] = useState(null)
+        const [retPatentJSX, setRetPatentJSX] = useState(null)
+        const [customEmbedding, setCustomEmbedding] = useState([])
+        const [decentAbstract, setDecentAbstract] = useState(false)
 
 
         const handleChange = (event) => {
             setSearchTerm(event.target.value)
         };
 
-        const getAPI = () => {
+        const getCustomEmbeddings = (response) => {
+
+            const requestOptions = {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    'probs': response.probs
+                })}
+
+                fetch('http://localhost:8000/api/give_custom_embedding', requestOptions)
+                .then((response) => response.json()).then((response)=>{setCustomEmbedding(JSON.parse(response)['raw_emb'])})
+        }
+
+        const getSimilarPatents = () => {
+
+            const requestOptions = {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    'embedding': customEmbedding,
+                    'k': 10,
+                    'use_custom_embeddings': false,
+                    'n':3,
+                    'query': 'grant_date > 20080101',
+                    'with_v1':false
+                })}
+
+                fetch('http://localhost:8000/api/give_similar_patents', requestOptions)
+                .then((response) => response.json()).then((response)=> {
+                    const p_array = JSON.parse(JSON.parse(response)['predictions']);
+                    console.log(typeof p_array, p_array)
+                    const patent_data = p_array.map((item)=>{
+                        const addr = 'https://patents.google.com/patent/'+item.publication_number.split("-").join("")
+                        return(<><h2>{item.publication_number}: {item.title}:</h2><div>({Math.round(item.Similarity*100,4)}%)</div>
+                            <a href={addr} target = "_blank">{addr}</a>
+                        <p>{item.abstract}</p></>)
+                    })
+                    setRetPatentJSX(patent_data)
+                })
+        }
+
+
+        const giveProbs = (response) => {
+
+            console.log('in give probs')
+            console.log(response)
+
+            const requestOptions = {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    'probs': response.probs
+                })
+            }
+            fetch('http://localhost:8000/api/give_likely_classes', requestOptions)
+                .then((response) => {
+                    setDecentAbstract(false)
+                    setProbabilityJSX('Loading');
+                    return (response.json())
+                })
+                .then((prob_list) => handleProbList(prob_list))
+        }
+
+        const makeProbEntry = (prob_row) => {
+            const prob_jsx = <p>
+                <strong>{prob_row.CPC4}: </strong>{prob_row.title}: - <strong>{prob_row['probability (%)']}%</strong>
+            </p>
+            return(prob_jsx)
+        }
+
+        const handleProbList = (prob_list) => {
+            const it = prob_list.map((key, value) => JSON.parse(key))
+            if (it[0].length === 0) {
+                setDecentAbstract(false)
+                setProbabilityJSX('It is unlikely that the query you have provided adequately resembles a patent abstract');
+            } else {
+                setDecentAbstract(true)
+                setProbabilityJSX(it[0].map((item) => makeProbEntry(item)));
+            }
+            console.log(it)
+
+            // prob_list.map((item)=> console.log(item.id))
+            // console.log(prob_list[0])
+            // prob_list.map((entry)=> {console.log(entry)})
+        }
+
+        const processResponse = (response) => {
+
+            setTokens(response.inputs.text)
+            console.log(response.inputs.text)
+            setLoading(true)
+
+            const requestOptions = {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    'input_mask': response.inputs.input_mask,
+                    'input_type_ids': response.inputs.input_type_ids,
+                    'input_word_ids': response.inputs.input_word_ids
+                })
+            }
+
+            fetch('http://localhost:8000/api/get_BERT_probs', requestOptions)
+                .then((response) => response.json())
+                .then((response) => {giveProbs(response); getCustomEmbeddings(response)})
+        }
+
+        const evaluateSearchQuery = () => {
 
             const requestOptions = {
                 method: 'POST',
@@ -126,30 +237,8 @@ class App extends Component {
                 body: JSON.stringify({'abstract': searchTerm})
             }
 
-            const processResponse = (response) => {
-
-                setTokens(response.inputs.text)
-                console.log(response.inputs.text)
-                setLoading(true)
-
-                const requestOptions = {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        'input_mask': response.inputs.input_mask,
-                        'input_type_ids': response.inputs.input_type_ids,
-                        'input_word_ids': response.inputs.input_word_ids
-                    })
-                }
-
-                fetch('api/get_BERT_probs', requestOptions)
-                    .then((response) => response.json())
-                    .then((response)=> console.log(response))
-
-            }
-
             fetch('api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
-                .then(setSearchedTerm(searchTerm))
+                .then(() => setSearchedTerm(searchTerm))
         }
 
         const yikes = tokens.map(name => <strong>{name} </strong>)
@@ -157,11 +246,14 @@ class App extends Component {
 
         return (
             <div>
-                <button onClick={getAPI}>Get Data</button>
+                <button onClick={evaluateSearchQuery}>Get Data</button>
                 <input id="search" type="text" onChange={handleChange}/>
                 {searchedTerm !== "" ?
                     <><p>Searching for: <strong>{searchedTerm}</strong></p>
-                        <p>Tokens: {yikes}</p></>
+                        <p>Tokens: {yikes}</p>
+                        <p>{probabilityJSX}</p>{decentAbstract && <button onClick={getSimilarPatents}>Get Similar Patents</button>}
+                        <p>{retPatentJSX}</p>
+                    </>
                     : null}
             </div>
         )
@@ -181,7 +273,8 @@ class App extends Component {
                         </div>
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
-                    <Login producerLoginRedirectEndpoint={this.state.producerLoginRedirectEndpoint}/>
+                    <this.getPatentData></this.getPatentData>
+                    // <Login producerLoginRedirectEndpoint={this.state.producerLoginRedirectEndpoint}/>
                 }
             </section>
         );
@@ -193,6 +286,7 @@ function Login(props) {
     const googleLogin = () => {
         var auth_provider = "google-oidc"
         var login_url = props.producerLoginRedirectEndpoint + "?auth_provider=" + auth_provider
+        console.log("the login_ur is", login_url)
         window.location.href = login_url
     }
 

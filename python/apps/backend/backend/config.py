@@ -19,7 +19,7 @@ GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configura
 if "INSTANCE_CONNECTION_NAME" in os.environ:
     FRONTEND_URL = "https://mal-6wcv5jbs7a-nw.a.run.app"
 else:
-    FRONTEND_URL = "http://localhost:8080"
+    FRONTEND_URL = "http://localhost:3000"
 GOOGLE_REDIRECT_URL = f"{FRONTEND_URL}/api/google-login-callback/"
 # Front end endpoint
 

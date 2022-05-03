@@ -77,7 +77,7 @@ async def startup_event():
 @app.post("/predict")
 async def give_predictions(piv: PredictorInput) -> PredictorInput:
     output = app.mc.predict(piv.embedding, piv.k, piv.use_custom_embeddings, piv.n, piv.query, piv.with_v1)
-    return {"predictions": output.to_json()}
+    return {"predictions": output.to_json(orient='records')}
 
 
 @app.on_event("shutdown")
