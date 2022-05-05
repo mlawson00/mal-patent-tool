@@ -189,7 +189,7 @@ class App extends Component {
                 })
             }
 
-            fetch('http://localhost:8000/api/give_similar_patents_bq', requestOptions).then((response) => {
+            fetch('api/give_similar_patents_bq', requestOptions).then((response) => {
                 this.setState({'status':'Retrieving similar patents'}, console.log('updated status'))
                 if (!response.ok) {
                     console.log(response)
@@ -245,7 +245,7 @@ class App extends Component {
                 })
             }
             this.setState({'status':'looking up likely CPC4 class names'})
-            fetch('http://localhost:8000/api/give_likely_classes', requestOptions)
+            fetch('api/give_likely_classes', requestOptions)
                 .then((response) => {
                     setDecentAbstract(false)
                     setProbabilityJSX('Loading');
@@ -293,7 +293,7 @@ class App extends Component {
                 })
             }
             this.setState({'status':'retrieving patent CPC4 probabilities'})
-            fetch('http://localhost:8000/api/get_BERT_probs', requestOptions)
+            fetch('api/get_BERT_probs', requestOptions)
                 .then((response) => response.json())
                 .then((response) => {
                     giveProbs(response);
@@ -309,7 +309,7 @@ class App extends Component {
                 body: JSON.stringify({'abstract': searchTerm})
             }
             this.setState({'status':'tokenizing abstract'})
-            fetch('http://localhost:8000/api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
+            fetch('api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
                 .then(() => setSearchedTerm(searchTerm)).then(this.setState({'status':'Inactive'}))
         }
 
@@ -506,10 +506,10 @@ class App extends Component {
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
                     <div>
-                        {/*<this.getPatentData></this.getPatentData>*/}
+                        <this.getPatentData></this.getPatentData>
                         {/*<this.Selectors></this.Selectors>*/}
                         {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
-                        <Login_page googleLogin = {this.googleLogin}/>
+                        {/*<Login_page googleLogin = {this.googleLogin}/>*/}
 
 
                     </div>

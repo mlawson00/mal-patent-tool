@@ -27,6 +27,7 @@ RUN npm run build
 FROM python_build as final_image
 
 COPY --from=node_setup /apps/frontend/build /usr/share/nginx/html/admin
+COPY --from=node_setup /apps/frontend/build /usr/share/nginx/html/admin
 COPY python/apps/backend/backend apps/backend
 COPY my_wrapper_script.sh my_wrapper_script.sh
 RUN ["chmod", "+x", "my_wrapper_script.sh"]
