@@ -4,7 +4,7 @@ import Login_page from "./login_page";
 class App extends Component {
 
     state = {
-        producerLoginRedirectEndpoint: '/api/login-redirect',
+        producerLoginRedirectEndpoint: 'api/login-redirect',
         producerLoginEndpoint: 'api/login/',
         producerLogoutEndpoint: 'api/logout/',
         producerLoginCheckEndpoint: 'api/user-session-status/',
@@ -506,10 +506,10 @@ class App extends Component {
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
                     <div>
-                        <this.getPatentData></this.getPatentData>
+                        {/*<this.getPatentData></this.getPatentData>*/}
                         {/*<this.Selectors></this.Selectors>*/}
                         {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
-                        {/*<Login_page googleLogin = {this.googleLogin}/>*/}
+                        <Login_page googleLogin = {this.googleLogin}/>
 
 
                     </div>
