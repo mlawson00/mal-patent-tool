@@ -23,8 +23,6 @@ from starlette.responses import (
     JSONResponse,
     RedirectResponse,
 )
-from dotenv import load_dotenv
-load_dotenv()
 auth_req = google.auth.transport.requests.Request()
 from backend.auth import (
     providers as auth_providers,
@@ -89,8 +87,6 @@ class BERT_input(BaseModel):
 # import google.cloud.logging as logging
 
 logger = log.getLogger(__name__)
-import os
-print('GOOGLE_CLIENT_SECRET', os.environ['GOOGLE_CLIENT_SECRET'])
 # logging_client = logging.Client()
 # logging_client.setup_logging()
 
