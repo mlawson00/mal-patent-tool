@@ -140,14 +140,7 @@ class App extends Component {
     .then(data => {window.location.reload()})
     .catch(err => {})
   }
-        fetch(this.state.producerLogoutEndpoint, request)
-            .then(response => response.json())
-            .then(data => {
-                window.location.reload()
-            })
-            .catch(err => {
-            })
-    }
+
 
     getPatentData = () => {
 
