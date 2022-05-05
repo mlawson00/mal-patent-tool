@@ -33,10 +33,10 @@ else:
     print('starting from here')
     print(f'postgresql://{db_user}:{db_pass}@cloudsqlproxy:3305/{db_name}')
     #TODO fix this
-    try:
-        engine = sqlalchemy.create_engine(f'postgresql://{db_user}:{db_pass}@localhost:3305/{db_name}')
-    except:
-        engine = sqlalchemy.create_engine(f'postgresql://{db_user}:{db_pass}@cloudsqlproxy:3305/{db_name}')
+    # try:
+    #     engine = sqlalchemy.create_engine(f'postgresql://{db_user}:{db_pass}@localhost:3305/{db_name}')
+    # except:
+    engine = sqlalchemy.create_engine(f'postgresql://{db_user}:{db_pass}@cloudsqlproxy:3305/{db_name}')
 
 
 Base = declarative_base()
