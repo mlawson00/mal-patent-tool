@@ -98,7 +98,22 @@ Base.metadata.create_all(engine)
 log.info('Setting up session')
 session = Session()
 log.info('Setting up app')
+
+import backend.inference_model
+
+
 app = FastAPI()
+global mc
+
+#small
+mc = backend.inference_model.bqPatentPredictor(max_distance=1,
+                                               bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",
+                                               est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
+
+# big
+#mc = backend.inference_model.bqPatentPredictor(max_distance=1,
+#                                               bq_table=f"mal-l7.mal_l7_us.c367b2b5091e4c0695b965b92ae57f9e",
+#                                               est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/063417aefb1345a4a98bbfed0210760c/artifacts/embedding_normalisiation.csv')
 
 # Allow CORS. DON'T do that on production!
 origins = [
@@ -339,8 +354,7 @@ class PredictorInput(BaseModel):
     k: int
     use_custom_embeddings: bool
     n: int
-    query:str
-    with_v1:bool
+    query:dict
 
 
 import pandas as pd
@@ -361,9 +375,19 @@ async def give_similar_patents(input_args: PredictorInput) -> PredictorInput:
             'k': input_args.k,
             'use_custom_embeddings': input_args.use_custom_embeddings,
             'n': input_args.n,
-            'query': input_args.query,
-            'with_v1': input_args.with_v1})
+            'query': input_args.query})
     return(out.text)
+
+@app.post("/api/give_similar_patents_bq")
+async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
+
+    print(input_args.query)
+
+    # df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
+    # print(f'that cost {cost}p, ouch')
+    # print(df)
+
+    # return(df.to_json(orient='records'))
 
 
 @app.post("/api/give_likely_classes")
