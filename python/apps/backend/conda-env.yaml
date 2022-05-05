@@ -20,8 +20,8 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - pip
-  - pandas-gbq
-  - google-cloud-bigquery
-  - db-dtypes
   - pip:
     - tf-models-official==2.7.0
+    - pandas-gbq
+    - google-cloud-bigquery
+    - db-dtypes
