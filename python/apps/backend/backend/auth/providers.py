@@ -49,7 +49,6 @@ class AuthProvider(ABC):
 	def __init__(self, client_id: str):
 		# OAuth 2 client setup
 		self.auth_client = WebApplicationClient(client_id)
-		print('google client id should be', config.GOOGLE_CLIENT_ID)
 
 	@staticmethod
 	@abstractmethod
@@ -129,7 +128,7 @@ class GoogleAuthProvider(AuthProvider):
 			redirect_url=config.GOOGLE_REDIRECT_URL,
 			code=auth_token.code
 		)
-		print('google client id should be', config.GOOGLE_CLIENT_ID)
+
 		try:
 			token_response = requests.post(
 				token_url,

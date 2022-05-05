@@ -3,19 +3,11 @@ import Login_page from "./login_page";
 
 class App extends Component {
 
-  state = {
-    producerLoginRedirectEndpoint: 'api/login-redirect',
-    producerLoginEndpoint: 'api/login/',
-    producerLogoutEndpoint: 'api/logout/',
-    producerLoginCheckEndpoint: 'api/user-session-status/',
-    userLoggedIn: false,
-    userName: null,
-  }
     state = {
         producerLoginRedirectEndpoint: '/api/login-redirect',
-        producerLoginEndpoint: '/api/login/',
-        producerLogoutEndpoint: '/api/logout/',
-        producerLoginCheckEndpoint: '/api/user-session-status/',
+        producerLoginEndpoint: 'api/login/',
+        producerLogoutEndpoint: 'api/logout/',
+        producerLoginCheckEndpoint: 'api/user-session-status/',
         userLoggedIn: false,
         userName: null,
         country_ob: {
@@ -54,93 +46,98 @@ class App extends Component {
         status:"Inactive"
     }
 
-  componentDidMount() {
-    this.authenticate()
-  }
-
-  setCookie = (cname, cvalue, exdays) => {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-  }
-
-  getCookie = (cname) => {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) === ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
-  }
-
-  authenticate = () => {
-    var authToken = (window.location.search.match(/authToken=([^&]+)/) || [])[1]
-    window.history.pushState('object', document.title, "/");
-
-    if (authToken) {
-      // Try to get an access token from the server
-      this.getAccessToken(authToken)
-    } else {
-      // Check user is logged in
-      this.checkUserSessionStatus()
-    }
-  }
-
-  getAccessToken = (authToken) => {
-    const request = {
-      method: 'GET',
-      headers: {
-        "Authorization": "Bearer " + authToken
-      },
-      credentials: 'include'
+    componentDidMount() {
+        this.authenticate()
     }
 
-    fetch(this.state.producerLoginEndpoint, request)
-    .then(response => {
-      // Check user is logged in
-      this.checkUserSessionStatus()
-    })
-    .then(data => {})
-    .catch(err => {})
-  }
-
-  checkUserSessionStatus = () => {
-    const request = {
-      method: 'GET',
-      credentials: 'include'
+    setCookie = (cname, cvalue, exdays) => {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     }
 
-    fetch(this.state.producerLoginCheckEndpoint, request)
-    .then(response => response.json())
-    .then(data => {
-      this.setState({
-        userLoggedIn: data['userLoggedIn'],
-        userName: data['userName'],
-      })
-    })
-    .catch(err => {})
-  }
-
-  logout = () => {
-    const request = {
-      method: 'GET',
-      credentials: 'include'
+    getCookie = (cname) => {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
     }
 
-    fetch(this.state.producerLogoutEndpoint, request)
-    .then(response => response.json())
-    .then(data => {window.location.reload()})
-    .catch(err => {})
-  }
+    authenticate = () => {
+        var authToken = (window.location.search.match(/authToken=([^&]+)/) || [])[1]
+        window.history.pushState('object', document.title, "/");
 
+        if (authToken) {
+            // Try to get an access token from the server
+            this.getAccessToken(authToken)
+        } else {
+            // Check user is logged in
+            this.checkUserSessionStatus()
+        }
+    }
+
+    getAccessToken = (authToken) => {
+        const request = {
+            method: 'GET',
+            headers: {
+                "Authorization": "Bearer " + authToken
+            },
+            credentials: 'include'
+        }
+
+        fetch(this.state.producerLoginEndpoint, request)
+            .then(response => {
+                // Check user is logged in
+                this.checkUserSessionStatus()
+            })
+            .then(data => {
+            })
+            .catch(err => {
+            })
+    }
+
+    checkUserSessionStatus = () => {
+        const request = {
+            method: 'GET',
+            credentials: 'include'
+        }
+
+        fetch(this.state.producerLoginCheckEndpoint, request)
+            .then(response => response.json())
+            .then(data => {
+                this.setState({
+                    userLoggedIn: data['userLoggedIn'],
+                    userName: data['userName'],
+                })
+            })
+            .catch(err => {
+            })
+    }
+
+    logout = () => {
+        const request = {
+            method: 'GET',
+            credentials: 'include'
+        }
+
+        fetch(this.state.producerLogoutEndpoint, request)
+            .then(response => response.json())
+            .then(data => {
+                window.location.reload()
+            })
+            .catch(err => {
+            })
+    }
 
     getPatentData = () => {
 
@@ -192,7 +189,7 @@ class App extends Component {
                 })
             }
 
-            fetch('api/give_similar_patents_bq', requestOptions).then((response) => {
+            fetch('http://localhost:8000/api/give_similar_patents_bq', requestOptions).then((response) => {
                 this.setState({'status':'Retrieving similar patents'}, console.log('updated status'))
                 if (!response.ok) {
                     console.log(response)
@@ -248,7 +245,7 @@ class App extends Component {
                 })
             }
             this.setState({'status':'looking up likely CPC4 class names'})
-            fetch('api/give_likely_classes', requestOptions)
+            fetch('http://localhost:8000/api/give_likely_classes', requestOptions)
                 .then((response) => {
                     setDecentAbstract(false)
                     setProbabilityJSX('Loading');
@@ -296,7 +293,7 @@ class App extends Component {
                 })
             }
             this.setState({'status':'retrieving patent CPC4 probabilities'})
-            fetch('api/get_BERT_probs', requestOptions)
+            fetch('http://localhost:8000/api/get_BERT_probs', requestOptions)
                 .then((response) => response.json())
                 .then((response) => {
                     giveProbs(response);
@@ -312,7 +309,7 @@ class App extends Component {
                 body: JSON.stringify({'abstract': searchTerm})
             }
             this.setState({'status':'tokenizing abstract'})
-            fetch('api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
+            fetch('http://localhost:8000/api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
                 .then(() => setSearchedTerm(searchTerm)).then(this.setState({'status':'Inactive'}))
         }
 
@@ -509,10 +506,10 @@ class App extends Component {
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
                     <div>
-                        {/*<this.getPatentData></this.getPatentData>*/}
+                        <this.getPatentData></this.getPatentData>
                         {/*<this.Selectors></this.Selectors>*/}
                         {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
-                        <Login_page googleLogin = {this.googleLogin}/>
+                        {/*<Login_page googleLogin = {this.googleLogin}/>*/}
 
 
                     </div>
@@ -530,6 +527,7 @@ function Login(props) {
     const googleLogin = () => {
         var auth_provider = "google-oidc"
         var login_url = props.producerLoginRedirectEndpoint + "?auth_provider=" + auth_provider
+        console.log("the login_ur is", login_url)
         window.location.href = login_url
     }
 

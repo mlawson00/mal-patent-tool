@@ -1,0 +1,85 @@
+.App {
+  text-align: -moz-center;
+}
+
+.App-logo {
+  alignment: left;
+  width: 48vmin;
+  align-items: start;
+}
+
+.App-logo-small {
+  alignment: left;
+  width: 44vmin;
+  align-items: start;
+}
+
+.flex_container_vertical {
+  display: flex;
+  flex:20%;
+  flex-direction: column;
+  background-color: white;
+  min-height: 100vh;
+  max-width: 50vw;
+  offset-position: 1cm 2cm;
+  align-items: center;
+  justify-content: space-around;
+  font-size: calc(8px + 2vmin);
+  color: black;
+  flex-wrap: wrap;
+}
+
+.App-header {
+  background-color: #ffffff;
+  min-height: 50vh;
+  offset-position: 2cm 2cm;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.Title-text{
+
+  color: #ee592b;
+  font: 'Helvetica Neue';
+  font-size: 45px;
+  font-weight: bold;
+
+
+}
+.flex_container_horizontal {
+  display: flex;
+  flex:20%;
+  flex-direction: row;
+  /*min-height: 50vh;*/
+  offset-position: 2cm 2cm;
+  justify-content: space-around;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  /*max-width: 50vw;*/
+  flex-wrap: wrap;
+  background-color: #61dafb;
+}
+
+.flex_container_horizontal_orange {
+  display: flex;
+  flex:20%;
+  flex-direction: row;
+  /*min-height: 60vh;*/
+  offset-position: 2cm 2cm;
+  justify-content: space-around;
+  font-size: calc(10px + 2vmin);
+  color: black;
+  max-width: 50vw;
+  flex-wrap: wrap;
+  background-color: #ee592b;
+}
+
+
+
+/*@keyframes App-logo-spin {*/
+/*  from {*/
+/*    transform: rotate(0deg);*/
+/*  }*/
+/*  to {*/
+/*    transform: rotate(360deg);*/
+/*  }*/
+/*}*/

@@ -23,6 +23,8 @@ from starlette.responses import (
     JSONResponse,
     RedirectResponse,
 )
+from dotenv import load_dotenv
+load_dotenv()
 auth_req = google.auth.transport.requests.Request()
 from backend.auth import (
     providers as auth_providers,
@@ -87,6 +89,8 @@ class BERT_input(BaseModel):
 # import google.cloud.logging as logging
 
 logger = log.getLogger(__name__)
+import os
+print('GOOGLE_CLIENT_SECRET', os.environ['GOOGLE_CLIENT_SECRET'])
 # logging_client = logging.Client()
 # logging_client.setup_logging()
 
@@ -175,19 +179,15 @@ async def login_redirect(auth_provider: str):
             Redirect response to the external provider's auth endpoint
     """
     log.info('login-redirect')
-    print('I am here')
     async with exception_handling():
 
         # think this is an instance of class of GoogleAuthProvider
         provider = await auth_providers.get_auth_provider(auth_provider)
-        print(provider)
         try:
             log.info(f'the provider is {provider}')
         except:
             log.info(f'cant log and awaited paremeter')
         request_uri, state_csrf_token = await provider.get_request_uri()
-        print('the request uri is', request_uri)
-        print('the state token is', state_csrf_token)
         log.info(f'the request_uri {request_uri}')
 
         response = RedirectResponse(url=request_uri)
@@ -330,10 +330,7 @@ async def user_session_status(
         Returns:
             response: A JSON response with the status of the user's session
     """
-
     async with exception_handling():
-
-        print('I am in the proxy ok')
         logged_id = True if internal_user else False
 
         response = JSONResponse(

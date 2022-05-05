@@ -1,0 +1,27 @@
+name: python3
+channels:
+  - conda-forge
+  - defaults
+  - anaconda
+  - esri
+dependencies:
+  - python=3.7
+  - pycocotools
+  - codecov
+  - fastapi
+  - uvicorn
+  - requests
+  - oauthlib
+  - pyjwt
+  - passlib
+  - aiocache
+  - msal
+  - msgpack-python
+  - sqlalchemy
+  - psycopg2
+  - pip
+  - pandas-gbq
+  - google-cloud-bigquery
+  - db-dtypes
+  - pip:
+    - tf-models-official==2.7.0
