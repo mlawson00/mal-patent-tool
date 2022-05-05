@@ -1,13 +1,13 @@
 import React, {Component, useState} from 'react';
-
+import Login_page from "./login_page";
 
 class App extends Component {
 
     state = {
-        producerLoginRedirectEndpoint: 'api/login-redirect',
-        producerLoginEndpoint: 'http://localhost:8000/api/login/',
-        producerLogoutEndpoint: 'api/logout/',
-        producerLoginCheckEndpoint: 'api/user-session-status/',
+        producerLoginRedirectEndpoint: '/api/login-redirect',
+        producerLoginEndpoint: '/api/login/',
+        producerLogoutEndpoint: '/api/logout/',
+        producerLoginCheckEndpoint: '/api/user-session-status/',
         userLoggedIn: false,
         userName: null,
         country_ob: {
@@ -32,17 +32,18 @@ class App extends Component {
             "JO": {selected: false, name: "Jordon"},
             "KR": {selected: false, name: "Korea"},
             "LU": {selected: false, name: "Luxembourg"},
-            "GC": {selected: false,name: "Patent Office of the Cooperation Council for the Arab States of the Gulf"},
+            "GC": {selected: false, name: "Patent Office of the Cooperation Council for the Arab States of the Gulf"},
             "NL": {selected: false, name: "Netherlands"},
             "RU": {selected: false, name: "Russian Federation"},
             "ES": {selected: false, name: "Spain"},
             "TW": {selected: false, name: "Taiwan"},
-            "GB": {selected: false, name: "United Kingdom"},
+            "GB": {selected: true, name: "United Kingdom"},
             "US": {selected: false, name: "United States"},
             "SU": {selected: false, name: "USSR"}
         },
-        start_year:2014,
-        end_year:2018
+        start_year: 1900,
+        end_year: 2022,
+        status:"Inactive"
     }
 
     componentDidMount() {
@@ -162,11 +163,15 @@ class App extends Component {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     'probs': response.probs
-                })}
+                })
+            }
 
-                fetch('http://localhost:8000/api/give_custom_embedding', requestOptions)
-                .then((response) => response.json()).then((response)=>{setCustomEmbedding(JSON.parse(response)['raw_emb'])})
+            fetch('http://localhost:8000/api/give_custom_embedding', requestOptions)
+                .then((response) => response.json()).then((response) => {
+                setCustomEmbedding(JSON.parse(response)['raw_emb'])
+            })
         }
+
 
         const getSimilarPatents = () => {
 
@@ -176,26 +181,54 @@ class App extends Component {
                 body: JSON.stringify({
                     'embedding': customEmbedding,
                     'k': 10,
-                    'use_custom_embeddings': false,
-                    'n':3,
-                    'query': {'start_year':this.state.start_year,
-                        'end_year':this.state.end_year,
-                        'countries':this.state.country_ob}
-                })}
-
-                fetch('http://localhost:8000/api/give_similar_patents_bq', requestOptions)
-                .then((response) => response.json()).then((response)=> {
-                    console.log(response)
-                    const p_array = JSON.parse(response);
-                    console.log(typeof p_array, p_array)
-                    const patent_data = p_array.map((item)=>{
-                        const addr = 'https://patents.google.com/patent/'+item.publication_number.split("-").join("")
-                        return(<><h2>{item.publication_number}: {item.title}:</h2><div>({Math.round(1-(item.cosine_distance)*100,4)}%)</div>
-                            <a href={addr} target = "_blank">{addr}</a>
-                        <p>{item.abstract}</p></>)
-                    })
-                    setRetPatentJSX(patent_data)
+                    'query': {
+                        'start_year': this.state.start_year,
+                        'end_year': this.state.end_year,
+                        'countries': this.state.country_ob
+                    }
                 })
+            }
+
+            fetch('http://localhost:8000/api/give_similar_patents_bq', requestOptions).then((response) => {
+                this.setState({'status':'Retrieving similar patents'}, console.log('updated status'))
+                if (!response.ok) {
+                    console.log(response)
+                    const bad_news = <div>Unfortunately, this did not work. Perhaps altering your query parameters would
+                        help?</div>
+                    setRetPatentJSX(bad_news)
+                    this.setState({'status':'Inactive'})
+                    // throw Error(response.statusText);
+                }
+                return response;
+            })
+                .then((response) => response.json()).then((response) => {
+                console.log(response)
+                const p_array = JSON.parse(response['predictions']);
+                const cost = response['cost']
+                console.log('that cost', cost)
+                const patent_data = p_array.map((item) => {
+                    const addr = 'https://patents.google.com/patent/' + item.publication_number.split("-").join("")
+                    console.log(item);
+                    var filing_date = new Date(item.filing_date)
+                    var grant_date = new Date(item.grant_date)
+
+                    return(
+
+                        <><h2>{item.publication_number}</h2>
+                        <h2>Title: {item.title}</h2>
+                            <div>Estimated Match: {Math.round((1 - item.cosine_distance) * 100, 4)}%)</div>
+                            <div>link: <a href={addr} target="_blank">{addr}</a></div>
+                            <div>filing date: {filing_date.toDateString() }</div>
+                            <div>grant date: {grant_date.toDateString() }</div>
+                            <div>country: {this.state['country_ob'][item.country_code]['name']}</div>
+                            <div>kind: {item.kind_code}</div>
+                            <h3>Abstract</h3>
+                            <div>{((item.abstract.length < 1) ? 'No abstract available' : item.abstract)}</div>
+                        </>
+                    )
+                })
+                setRetPatentJSX(<>{patent_data}</>)
+            }).then(this.setState({'status':'Inactive'}), console.log('updated status'))
         }
 
 
@@ -211,20 +244,21 @@ class App extends Component {
                     'probs': response.probs
                 })
             }
+            this.setState({'status':'looking up likely CPC4 class names'})
             fetch('http://localhost:8000/api/give_likely_classes', requestOptions)
                 .then((response) => {
                     setDecentAbstract(false)
                     setProbabilityJSX('Loading');
                     return (response.json())
                 })
-                .then((prob_list) => handleProbList(prob_list))
+                .then((prob_list) => handleProbList(prob_list)).then(this.setState({'status':'Inactive'}))
         }
 
         const makeProbEntry = (prob_row) => {
             const prob_jsx = <p>
                 <strong>{prob_row.CPC4}: </strong>{prob_row.title}: - <strong>{prob_row['probability (%)']}%</strong>
             </p>
-            return(prob_jsx)
+            return (prob_jsx)
         }
 
         const handleProbList = (prob_list) => {
@@ -258,10 +292,13 @@ class App extends Component {
                     'input_word_ids': response.inputs.input_word_ids
                 })
             }
-
+            this.setState({'status':'retrieving patent CPC4 probabilities'})
             fetch('http://localhost:8000/api/get_BERT_probs', requestOptions)
                 .then((response) => response.json())
-                .then((response) => {giveProbs(response); getCustomEmbeddings(response)})
+                .then((response) => {
+                    giveProbs(response);
+                    getCustomEmbeddings(response)
+                }).then(this.setState({'status':'Inactive'}))
         }
 
         const evaluateSearchQuery = () => {
@@ -271,9 +308,9 @@ class App extends Component {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({'abstract': searchTerm})
             }
-
+            this.setState({'status':'tokenizing abstract'})
             fetch('api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
-                .then(() => setSearchedTerm(searchTerm))
+                .then(() => setSearchedTerm(searchTerm)).then(this.setState({'status':'Inactive'}))
         }
 
         const yikes = tokens.map(name => <strong>{name} </strong>)
@@ -281,17 +318,28 @@ class App extends Component {
 
         return (
             <div>
+                <h1>Welcome {this.state.userName}</h1>
+                <p>Patent Tool Status: <strong>{this.state.status}</strong></p>
                 <button onClick={evaluateSearchQuery}>Get Data</button>
                 <input id="search" type="text" onChange={handleChange}/>
                 {searchedTerm !== "" ?
                     <><p>Searching for: <strong>{searchedTerm}</strong></p>
                         <p>Tokens: {yikes}</p>
-                        <p>{probabilityJSX}</p>{decentAbstract && <button onClick={getSimilarPatents}>Get Similar Patents</button>}
+                        <p>{probabilityJSX}</p>{decentAbstract &&
+                            <>
+                            <button onClick={getSimilarPatents}>Get Similar Patents</button>
+                            <this.yearDropDown id='start_year'/>
+                            <this.yearDropDown id='end_year'/>
+                            <this.nDropDown id='n' min={1} max={5}/>
+                            <this.makeCheckboxes></this.makeCheckboxes></>
+                        }
+
                         <p>{retPatentJSX}</p>
                     </>
                     : null}
             </div>
-        )}
+        )
+    }
 
     Selectors = (props) => {
 
@@ -330,7 +378,8 @@ class App extends Component {
 
 
         return (jsx)
-}
+    }
+
     checkboxClicker = (event) => {
         console.log(event)
         let buttons_state = this.state.country_ob
@@ -340,21 +389,53 @@ class App extends Component {
             buttons_state[event.target.id]['selected'] = false
         }
 
-        this.setState({'country_ob':buttons_state}, console.log('set_button_state'))
+        this.setState({'country_ob': buttons_state}, console.log('set_button_state'))
     }
 
     handleCheck = (event) => {
         console.log(event.target)
     };
 
-   makeCheckboxes = (props) => {
-    const jsx = Object.entries(this.state.country_ob).map(([key, value]) =>
+    makeCheckboxes = (props) => {
+        const jsx = Object.entries(this.state.country_ob).map(([key, value]) =>
 
-        <div><input  onChange={this.checkboxClicker} type="checkbox" id={key} name={value['name']} checked={value['selected']}/>: {value['name']}</div>
+            <div><input onChange={this.checkboxClicker} type="checkbox" id={key} name={value['name']}
+                        checked={value['selected']}/>: {value['name']}</div>
+        )
+        const output = <div className="country selector">{jsx}</div>
+        return (output)
+    }
 
-    )
-    const output = <div className="country selector">{jsx}</div>
-    return(output)
+
+    nDropDown = (props) => {
+
+
+        const onHandleChange = (evt) => {
+            this.setState({[evt.target['name']]: evt.target.value}, console.log('set the state'));
+        };
+
+        const thisYear = (new Date()).getFullYear();
+
+        const selectedYear = this.state[props.id]
+
+        let minOffset = props.min
+        let maxOffset = props.max
+        const options = [];
+
+        for (let i = minOffset; i <= maxOffset; i++) {
+            const n = i;
+            options.push(<option value={n}>{n}</option>);
+        }
+
+        console.log('the probs id is', this.state[props.id])
+
+        const jsx = <div>{props.id}:
+            <select value={this.state[props.id]} onChange={onHandleChange} name={props.id}>
+                {options}
+            </select>
+        </div>;
+
+        return jsx
     }
 
     yearDropDown = (props) => {
@@ -369,15 +450,26 @@ class App extends Component {
 
         const thisYear = (new Date()).getFullYear();
 
+        // this.setState({'end_year': thisYear})
+
         const selectedYear = this.state[props.id]
 
-        let minOffset =0
-        let maxOffset = 122
+        let min_i = 0
+        let max_i = 122
         const options = [];
+        console.log('the year dropdown props is', props['id'])
+        if (props['id'] === 'start_year') {
+            console.log('!!!!! is was start_year')
+            min_i = 1900
+            max_i = this.state['end_year']
+        } else {
+            min_i = this.state['start_year']
+            max_i = thisYear
+        }
 
-        for (let i = minOffset; i <= maxOffset; i++) {
-            const year = thisYear - i;
-            options.push(<option value={year}>{year}</option>);
+
+        for (let i = min_i; i <= max_i; i++) {
+            options.push(<option value={i}>{i}</option>);
         }
 
         console.log('the probs id is', this.state[props.id])
@@ -389,6 +481,13 @@ class App extends Component {
         </div>;
 
         return jsx
+    }
+
+    googleLogin = () => {
+        var auth_provider = "google-oidc"
+        var login_url = this.state.producerLoginRedirectEndpoint + "?auth_provider=" + auth_provider
+        console.log("the login_ur is", login_url)
+        window.location.href = login_url
     }
 
 
@@ -407,13 +506,14 @@ class App extends Component {
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
                     <div>
-                    <this.getPatentData></this.getPatentData>
-                    <this.Selectors></this.Selectors>
-                         {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
-                        <this.yearDropDown id = 'start_year'/>
-                        <this.yearDropDown id = 'end_year'/>
-                        <this.makeCheckboxes></this.makeCheckboxes>
-                        </div>
+                        {/*<this.getPatentData></this.getPatentData>*/}
+                        {/*<this.Selectors></this.Selectors>*/}
+                        {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
+                        <Login_page googleLogin = {this.googleLogin}/>
+
+
+                    </div>
+
                     // <Login producerLoginRedirectEndpoint={this.state.producerLoginRedirectEndpoint}/>
                 }
             </section>

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 import google.auth.transport.requests
 import google.oauth2.id_token
 import numpy as np
+from fastapi import FastAPI, HTTPException
 
 from fastapi.encoders import jsonable_encoder
 from fastapi import (
@@ -111,7 +112,7 @@ mc = backend.inference_model.bqPatentPredictor(max_distance=1,
                                                est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
 
 # big
-#mc = backend.inference_model.bqPatentPredictor(max_distance=1,
+# mc = backend.inference_model.bqPatentPredictor(max_distance=1,
 #                                               bq_table=f"mal-l7.mal_l7_us.c367b2b5091e4c0695b965b92ae57f9e",
 #                                               est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/063417aefb1345a4a98bbfed0210760c/artifacts/embedding_normalisiation.csv')
 
@@ -178,15 +179,19 @@ async def login_redirect(auth_provider: str):
             Redirect response to the external provider's auth endpoint
     """
     log.info('login-redirect')
+    print('I am here')
     async with exception_handling():
 
         # think this is an instance of class of GoogleAuthProvider
         provider = await auth_providers.get_auth_provider(auth_provider)
+        print(provider)
         try:
             log.info(f'the provider is {provider}')
         except:
             log.info(f'cant log and awaited paremeter')
         request_uri, state_csrf_token = await provider.get_request_uri()
+        print('the request uri is', request_uri)
+        print('the state token is', state_csrf_token)
         log.info(f'the request_uri {request_uri}')
 
         response = RedirectResponse(url=request_uri)
@@ -329,7 +334,10 @@ async def user_session_status(
         Returns:
             response: A JSON response with the status of the user's session
     """
+
     async with exception_handling():
+
+        print('I am in the proxy ok')
         logged_id = True if internal_user else False
 
         response = JSONResponse(
@@ -352,14 +360,21 @@ class customEmbeddingOutput(BaseModel):
 class PredictorInput(BaseModel):
     embedding: list
     k: int
-    use_custom_embeddings: bool
-    n: int
     query:dict
 
 
 import pandas as pd
 labels_frame = pd.read_csv('backend/labels_group_id.tsv', sep='\t')
 threshold=0.2
+
+def query_generator(raw_query: dict):
+    country_list = '", "'.join(
+        [country for country in raw_query['countries'].keys() if raw_query['countries'][country]['selected']])
+    country_query = f'country_code IN ("{country_list}")'
+    start_date_query = f'filing_date >= "{raw_query["start_year"]}-01-01"'
+    end_date_query = f'filing_date <= "{raw_query["end_year"]}-01-01"'
+    cleaned_query = " AND ".join([start_date_query,end_date_query,country_query])
+    return cleaned_query
 
 
 @app.post("/api/give_similar_patents")
@@ -381,13 +396,20 @@ async def give_similar_patents(input_args: PredictorInput) -> PredictorInput:
 @app.post("/api/give_similar_patents_bq")
 async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
 
-    print(input_args.query)
 
-    # df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
-    # print(f'that cost {cost}p, ouch')
-    # print(df)
+    cleaned_query = query_generator(input_args.query)
+    print(cleaned_query)
+    mc.where_statements = cleaned_query
 
-    # return(df.to_json(orient='records'))
+    try:
+        df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
+        print(f'that cost {cost}p, ouch')
+        print(df)
+
+        return({'predictions':df.to_json(orient='records'), 'cost':np.round(cost,2)})
+
+    except:
+        raise HTTPException(status_code=404, detail=f"Items not found, expected query costs {mc.costs*500/(1024**4)}p")
 
 
 @app.post("/api/give_likely_classes")
