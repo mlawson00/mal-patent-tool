@@ -30,169 +30,169 @@ class BqPatentPredictor:
         self.bq_client = bigquery.Client()
         self.job_config = bigquery.QueryJobConfig(dry_run=True, use_query_cache=False)
 
-    def return_custom_embedding_centroids_for_averaging(self, X):
-
-        embedding_query_string = r'''
-      #standardSQL
-
-      CREATE TEMPORARY FUNCTION cosine_distance(patent ARRAY<FLOAT64>)
-      RETURNS FLOAT64
-      LANGUAGE js AS """
-        var custom_vector = [custom_vector];
-
-        var dotproduct = 0;
-        var A = 0;
-        var B = 0;
-        for (i = 0; i < patent.length; i++){
-          dotproduct += (patent[i] * custom_vector[i]);
-          A += (patent[i]*patent[i]);
-          B += (custom_vector[i]*custom_vector[i]);
-        }
-        A = Math.sqrt(A);
-        B = Math.sqrt(B);
-        var cosine_distance = 1 - (dotproduct)/(A)*(B);
-        return cosine_distance;
-      """;
-
-        SELECT
-          publication_number,
-          custom_embedding,
-          cosine_distance(custom_embedding) AS cosine_distance
-        FROM `[dataset]`
-        WHERE
-          [where_statements]
-          cosine_distance(custom_embedding) < [max_distance]
-        ORDER BY
-          cosine_distance
-        LIMIT [max_results]
-    '''
-
-        if self.where_statements != None:
-            where_statements = self.where_statements + ' AND'
-        else:
-            where_statements = ''
-
-        query_ = embedding_query_string.replace('[dataset]',
-                                                f"{self.bq_table}_custom_embedding")
-        query_ = query_.replace('[custom_vector]',
-                                str(X.tolist()))
-        query_ = query_.replace('[max_distance]',
-                                str(self.max_distance))
-        query_ = query_.replace('[where_statements]',
-                                where_statements)
-        query_ = query_.replace('[max_results]',
-                                str(self.k))
-
-        print(query_)
-        self.accumulate_costs(query_)
-        result = pd.read_gbq(query_)
-        return (result)
-
-    def get_corresponding_v1s(self, patent_list):
-
-        if len(patent_list) == 1:
-            p_list = f'("{patent_list[0]}")'
-        else:
-            p_list = str(tuple(patent_list))
-
-        query = f"""SELECT publication_number, embedding_v1
-        FROM `{self.bq_table}_cluster_partitioned`
-        WHERE {self.where_statements} AND publication_number IN {p_list}
-
-        LIMIT {self.n}
-        """
-
-        print(query)
-
-        result = pd.read_gbq(query)
-        self.accumulate_costs(query)
-        return (result)
-
-    def return_patent_data(self, v1_centroid):
-        embedding_query_string = '''CREATE TEMPORARY FUNCTION cosine_distance(patent ARRAY<FLOAT64>)
-        RETURNS FLOAT64
-        LANGUAGE js AS """
-          var custom_vector = [custom_vector];
-
-          var dotproduct = 0;
-          var A = 0;
-          var B = 0;
-          for (i = 0; i < patent.length; i++){
-            dotproduct += (patent[i] * custom_vector[i]);
-            A += (patent[i]*patent[i]);
-            B += (custom_vector[i]*custom_vector[i]);
-          }
-          A = Math.sqrt(A);
-          B = Math.sqrt(B);
-          var cosine_distance = 1 - (dotproduct)/(A)*(B);
-          return cosine_distance;
-        """;
-
-          SELECT
-            publication_number,
-            title,
-            country_code,
-            kind_code,
-            filing_date,
-            grant_date,
-            abstract,
-            embedding_v1,
-            cosine_distance(embedding_v1) AS cosine_distance
-          FROM `[dataset]`
-          WHERE
-            [where_statements]
-            cosine_distance(embedding_v1) < [max_distance]
-          ORDER BY
-            cosine_distance
-          LIMIT [max_results]'''
-
-        if self.where_statements != None:
-            where_statements = self.where_statements + ' AND'
-        else:
-
-            where_statements = ''
-
-        query_ = embedding_query_string.replace('[dataset]',
-                                                f"{self.bq_table}_cluster_partitioned")
-        query_ = query_.replace('[custom_vector]',
-                                str(v1_centroid.tolist()))
-        query_ = query_.replace('[max_distance]',
-                                str(self.max_distance))
-        query_ = query_.replace('[where_statements]',
-                                where_statements)
-        query_ = query_.replace('[max_results]',
-                                str(self.n))
-
-        result = pd.read_gbq(query_)
-        self.accumulate_costs(query_)
-
-        return (result)
-
-    def accumulate_costs(self, q):
-
-        query_job = self.bq_client.query(q, job_config=self.job_config)
-        self.costs += query_job.total_bytes_processed
-
-    def bq_get_nearest_patents(self, raw_embedding):
-
-        X = self.pipe.transform(raw_embedding.reshape(1, -1))[0]
-        if self.k > 1:
-            custom_embedding_centroids_for_averaging = self.return_custom_embedding_centroids_for_averaging(X)
-            X = np.stack(custom_embedding_centroids_for_averaging['custom_embedding'].values).mean(0)
-
-        # print(X)
-
-        custom_embedding_centroids_for_averaging = self.return_custom_embedding_centroids_for_averaging(X)
-
-        patent_list = custom_embedding_centroids_for_averaging['publication_number'].to_list()
-        corresponding_v1 = self.get_corresponding_v1s(patent_list)
-        if self.k == 1:
-            v1_centroid = corresponding_v1['embedding_v1'][0]
-        else:
-            v1_centroid = corresponding_v1['embedding_v1'].to_numpy().mean()
-
-        patent_data = self.return_patent_data(v1_centroid)
-        cost = self.costs * 500 / (1024 ** 4)
-        self.costs = 0
-
-        return patent_data, cost
+    # def return_custom_embedding_centroids_for_averaging(self, X):
+    #
+    #     embedding_query_string = r'''
+    #   #standardSQL
+    #
+    #   CREATE TEMPORARY FUNCTION cosine_distance(patent ARRAY<FLOAT64>)
+    #   RETURNS FLOAT64
+    #   LANGUAGE js AS """
+    #     var custom_vector = [custom_vector];
+    #
+    #     var dotproduct = 0;
+    #     var A = 0;
+    #     var B = 0;
+    #     for (i = 0; i < patent.length; i++){
+    #       dotproduct += (patent[i] * custom_vector[i]);
+    #       A += (patent[i]*patent[i]);
+    #       B += (custom_vector[i]*custom_vector[i]);
+    #     }
+    #     A = Math.sqrt(A);
+    #     B = Math.sqrt(B);
+    #     var cosine_distance = 1 - (dotproduct)/(A)*(B);
+    #     return cosine_distance;
+    #   """;
+    #
+    #     SELECT
+    #       publication_number,
+    #       custom_embedding,
+    #       cosine_distance(custom_embedding) AS cosine_distance
+    #     FROM `[dataset]`
+    #     WHERE
+    #       [where_statements]
+    #       cosine_distance(custom_embedding) < [max_distance]
+    #     ORDER BY
+    #       cosine_distance
+    #     LIMIT [max_results]
+    # '''
+    #
+    #     if self.where_statements != None:
+    #         where_statements = self.where_statements + ' AND'
+    #     else:
+    #         where_statements = ''
+    #
+    #     query_ = embedding_query_string.replace('[dataset]',
+    #                                             f"{self.bq_table}_custom_embedding")
+    #     query_ = query_.replace('[custom_vector]',
+    #                             str(X.tolist()))
+    #     query_ = query_.replace('[max_distance]',
+    #                             str(self.max_distance))
+    #     query_ = query_.replace('[where_statements]',
+    #                             where_statements)
+    #     query_ = query_.replace('[max_results]',
+    #                             str(self.k))
+    #
+    #     print(query_)
+    #     self.accumulate_costs(query_)
+    #     result = pd.read_gbq(query_)
+    #     return (result)
+    #
+    # def get_corresponding_v1s(self, patent_list):
+    #
+    #     if len(patent_list) == 1:
+    #         p_list = f'("{patent_list[0]}")'
+    #     else:
+    #         p_list = str(tuple(patent_list))
+    #
+    #     query = f"""SELECT publication_number, embedding_v1
+    #     FROM `{self.bq_table}_cluster_partitioned`
+    #     WHERE {self.where_statements} AND publication_number IN {p_list}
+    #
+    #     LIMIT {self.n}
+    #     """
+    #
+    #     print(query)
+    #
+    #     result = pd.read_gbq(query)
+    #     self.accumulate_costs(query)
+    #     return (result)
+    #
+    # def return_patent_data(self, v1_centroid):
+    #     embedding_query_string = '''CREATE TEMPORARY FUNCTION cosine_distance(patent ARRAY<FLOAT64>)
+    #     RETURNS FLOAT64
+    #     LANGUAGE js AS """
+    #       var custom_vector = [custom_vector];
+    #
+    #       var dotproduct = 0;
+    #       var A = 0;
+    #       var B = 0;
+    #       for (i = 0; i < patent.length; i++){
+    #         dotproduct += (patent[i] * custom_vector[i]);
+    #         A += (patent[i]*patent[i]);
+    #         B += (custom_vector[i]*custom_vector[i]);
+    #       }
+    #       A = Math.sqrt(A);
+    #       B = Math.sqrt(B);
+    #       var cosine_distance = 1 - (dotproduct)/(A)*(B);
+    #       return cosine_distance;
+    #     """;
+    #
+    #       SELECT
+    #         publication_number,
+    #         title,
+    #         country_code,
+    #         kind_code,
+    #         filing_date,
+    #         grant_date,
+    #         abstract,
+    #         embedding_v1,
+    #         cosine_distance(embedding_v1) AS cosine_distance
+    #       FROM `[dataset]`
+    #       WHERE
+    #         [where_statements]
+    #         cosine_distance(embedding_v1) < [max_distance]
+    #       ORDER BY
+    #         cosine_distance
+    #       LIMIT [max_results]'''
+    #
+    #     if self.where_statements != None:
+    #         where_statements = self.where_statements + ' AND'
+    #     else:
+    #
+    #         where_statements = ''
+    #
+    #     query_ = embedding_query_string.replace('[dataset]',
+    #                                             f"{self.bq_table}_cluster_partitioned")
+    #     query_ = query_.replace('[custom_vector]',
+    #                             str(v1_centroid.tolist()))
+    #     query_ = query_.replace('[max_distance]',
+    #                             str(self.max_distance))
+    #     query_ = query_.replace('[where_statements]',
+    #                             where_statements)
+    #     query_ = query_.replace('[max_results]',
+    #                             str(self.n))
+    #
+    #     result = pd.read_gbq(query_)
+    #     self.accumulate_costs(query_)
+    #
+    #     return (result)
+    #
+    # def accumulate_costs(self, q):
+    #
+    #     query_job = self.bq_client.query(q, job_config=self.job_config)
+    #     self.costs += query_job.total_bytes_processed
+    #
+    # def bq_get_nearest_patents(self, raw_embedding):
+    #
+    #     X = self.pipe.transform(raw_embedding.reshape(1, -1))[0]
+    #     if self.k > 1:
+    #         custom_embedding_centroids_for_averaging = self.return_custom_embedding_centroids_for_averaging(X)
+    #         X = np.stack(custom_embedding_centroids_for_averaging['custom_embedding'].values).mean(0)
+    #
+    #     # print(X)
+    #
+    #     custom_embedding_centroids_for_averaging = self.return_custom_embedding_centroids_for_averaging(X)
+    #
+    #     patent_list = custom_embedding_centroids_for_averaging['publication_number'].to_list()
+    #     corresponding_v1 = self.get_corresponding_v1s(patent_list)
+    #     if self.k == 1:
+    #         v1_centroid = corresponding_v1['embedding_v1'][0]
+    #     else:
+    #         v1_centroid = corresponding_v1['embedding_v1'].to_numpy().mean()
+    #
+    #     patent_data = self.return_patent_data(v1_centroid)
+    #     cost = self.costs * 500 / (1024 ** 4)
+    #     self.costs = 0
+    #
+    #     return patent_data, cost
