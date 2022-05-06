@@ -2,7 +2,7 @@ import json
 import uvicorn
 from fastapi import FastAPI
 import logging as log
-import backend.inference_model
+
 import pandas as pd
 import google.auth.transport.requests
 import google.oauth2.id_token
@@ -91,6 +91,9 @@ class custom_bert_encoder:
         return {"text": text, "input_mask": [pad_masks], "input_type_ids": [segment_ids], "input_word_ids": [tokens]}
 
 
+
+import backend.inference_model
+
 bert_encoder = custom_bert_encoder('backend/vocab.txt')
 
 logger = log.getLogger(__name__)
@@ -103,9 +106,9 @@ log.info('Setting up app')
 
 app = FastAPI()
 
-global mc
-mc = backend.inference_model.bqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
-# mc = inference_model.bqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
+# global mc
+# mc = backend.inference_model.bqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
+
 origins = [
     config.FRONTEND_URL
 ]
@@ -346,22 +349,22 @@ def query_generator(raw_query: dict):
     return cleaned_query
 
 
-@app.post("/api/give_similar_patents_bq")
-async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
-    cleaned_query = query_generator(input_args.query)
-    print(cleaned_query)
-    mc.where_statements = cleaned_query
-
-    try:
-        df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
-        print(f'that cost {cost}p, ouch')
-        print(df)
-
-        return ({'predictions': df.to_json(orient='records'), 'cost': np.round(cost, 2)})
-
-    except:
-        raise HTTPException(status_code=404,
-                            detail=f"Items not found, expected query costs {mc.costs * 500 / (1024 ** 4)}p")
+# @app.post("/api/give_similar_patents_bq")
+# async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
+#     cleaned_query = query_generator(input_args.query)
+#     print(cleaned_query)
+#     mc.where_statements = cleaned_query
+#
+#     try:
+#         df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
+#         print(f'that cost {cost}p, ouch')
+#         print(df)
+#
+#         return ({'predictions': df.to_json(orient='records'), 'cost': np.round(cost, 2)})
+#
+#     except:
+#         raise HTTPException(status_code=404,
+#                             detail=f"Items not found, expected query costs {mc.costs * 500 / (1024 ** 4)}p")
 
 
 @app.post("/api/give_likely_classes")
