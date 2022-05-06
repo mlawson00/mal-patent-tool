@@ -349,22 +349,22 @@ def query_generator(raw_query: dict):
     return cleaned_query
 
 
-# @app.post("/api/give_similar_patents_bq")
-# async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
-#     cleaned_query = query_generator(input_args.query)
-#     print(cleaned_query)
-#     mc.where_statements = cleaned_query
-#
-#     try:
-#         df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
-#         print(f'that cost {cost}p, ouch')
-#         print(df)
-#
-#         return ({'predictions': df.to_json(orient='records'), 'cost': np.round(cost, 2)})
-#
-#     except:
-#         raise HTTPException(status_code=404,
-#                             detail=f"Items not found, expected query costs {mc.costs * 500 / (1024 ** 4)}p")
+@app.post("/api/give_similar_patents_bq")
+async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
+    cleaned_query = query_generator(input_args.query)
+    print(cleaned_query)
+    mc.where_statements = cleaned_query
+    global mc
+    try:
+        df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
+        print(f'that cost {cost}p, ouch')
+        print(df)
+
+        return ({'predictions': df.to_json(orient='records'), 'cost': np.round(cost, 2)})
+
+    except:
+        raise HTTPException(status_code=404,
+                            detail=f"Items not found, expected query costs {mc.costs * 500 / (1024 ** 4)}p")
 
 
 @app.post("/api/give_likely_classes")
