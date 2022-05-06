@@ -48,8 +48,10 @@ import uvicorn
 from fastapi import FastAPI
 
 import logging as log
-import backend.inference_model
 import pandas as pd
+
+
+# import backend.inference_model
 
 app = FastAPI()
 

@@ -50,7 +50,26 @@ import logging as log
 import backend.inference_model
 import pandas as pd
 
+class probabilityInput(BaseModel):
+    probs: list
 
+class customEmbeddingOutput(BaseModel):
+    cpc_prob: list
+    raw_emb: list
+
+class PredictorInput(BaseModel):
+    embedding: list
+    k: int
+    query:dict
+
+class AbstractDraft(BaseModel):
+    abstract: str
+
+
+class BERT_input(BaseModel):
+    input_mask: list
+    input_type_ids: list
+    input_word_ids: list
 
 class custom_bert_encoder:
     def __init__(self, vocab_file, max_len=128):
@@ -68,17 +87,10 @@ class custom_bert_encoder:
         return {"text": text, "input_mask": [pad_masks], "input_type_ids": [segment_ids], "input_word_ids": [tokens]}
 
 
-b = custom_bert_encoder('backend/vocab.txt')
+bert_encoder = custom_bert_encoder('backend/vocab.txt')
 
 
-class AbstractDraft(BaseModel):
-    abstract: str
 
-
-class BERT_input(BaseModel):
-    input_mask: list
-    input_type_ids: list
-    input_word_ids: list
 
 logger = log.getLogger(__name__)
 
@@ -324,17 +336,6 @@ async def user_session_status(
         return response
 
 
-class probabilityInput(BaseModel):
-    probs: list
-
-class customEmbeddingOutput(BaseModel):
-    cpc_prob: list
-    raw_emb: list
-
-class PredictorInput(BaseModel):
-    embedding: list
-    k: int
-    query:dict
 
 
 
@@ -350,22 +351,6 @@ def query_generator(raw_query: dict):
     cleaned_query = " AND ".join([start_date_query,end_date_query,country_query])
     return cleaned_query
 
-
-@app.post("/api/give_similar_patents")
-async def give_similar_patents(input_args: PredictorInput) -> PredictorInput:
-
-
-    id_token = google.oauth2.id_token.fetch_id_token(auth_req, 'https://test-image-6wcv5jbs7a-nw.a.run.app/predict')
-    print(id_token)
-    Headers = {"Authorization": f"Bearer {id_token}"}
-
-    out = requests.post('https://test-image-6wcv5jbs7a-nw.a.run.app/predict', headers=Headers,
-    json = {"embedding": input_args.embedding,
-            'k': input_args.k,
-            'use_custom_embeddings': input_args.use_custom_embeddings,
-            'n': input_args.n,
-            'query': input_args.query})
-    return(out.text)
 
 @app.post("/api/give_similar_patents_bq")
 async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
@@ -413,7 +398,7 @@ async def give_custom_embedding(probs: probabilityInput) -> probabilityInput:
 async def abstract_search(abstract_draft: AbstractDraft) -> AbstractDraft:
     raw_data = jsonable_encoder(abstract_draft.abstract)
 
-    data = b.bert_encode(raw_data)
+    data = bert_encoder.bert_encode(raw_data)
     # output = requests.post('http://localhost:8080/invocations', json={"inputs": data})
     return {"inputs": data}
 
