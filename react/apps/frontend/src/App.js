@@ -166,7 +166,7 @@ class App extends Component {
                 })
             }
 
-            fetch('http://localhost:8000/api/give_custom_embedding', requestOptions)
+            fetch('api/give_custom_embedding', requestOptions)
                 .then((response) => response.json()).then((response) => {
                 setCustomEmbedding(JSON.parse(response)['raw_emb'])
             })
@@ -246,7 +246,7 @@ class App extends Component {
             }
             this.setState({'status':'looking up likely CPC4 class names'})
             fetch('api/give_likely_classes', requestOptions)
-                .then((response) => {
+                .then((response) => {console.log("I got a response from give likely classes")
                     setDecentAbstract(false)
                     setProbabilityJSX('Loading');
                     return (response.json())
@@ -255,26 +255,30 @@ class App extends Component {
         }
 
         const makeProbEntry = (prob_row) => {
+            console.log(prob_row)
             const prob_jsx = <p>
-                <strong>{prob_row.CPC4}: </strong>{prob_row.title}: - <strong>{prob_row['probability (%)']}%</strong>
-            </p>
-            return (prob_jsx)
+                 <strong>{prob_row.CPC4}: </strong>
+                 {prob_row.title}: - <strong>{prob_row['probability (%)']}%</strong>
+             </p>
+            // return (prob_jsx)
         }
 
         const handleProbList = (prob_list) => {
+
             const it = prob_list.map((key, value) => JSON.parse(key))
             if (it[0].length === 0) {
                 setDecentAbstract(false)
                 setProbabilityJSX('It is unlikely that the query you have provided adequately resembles a patent abstract');
-            } else {
+            }
+            else {
                 setDecentAbstract(true)
                 setProbabilityJSX(it[0].map((item) => makeProbEntry(item)));
             }
             console.log(it)
 
-            // prob_list.map((item)=> console.log(item.id))
-            // console.log(prob_list[0])
-            // prob_list.map((entry)=> {console.log(entry)})
+            prob_list.map((item)=> console.log(item.id))
+            console.log(prob_list[0])
+            prob_list.map((entry)=> {console.log(entry)})
         }
 
         const processResponse = (response) => {
@@ -308,6 +312,7 @@ class App extends Component {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({'abstract': searchTerm})
             }
+            console.log(searchTerm)
             this.setState({'status':'tokenizing abstract'})
             fetch('api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
                 .then(() => setSearchedTerm(searchTerm)).then(this.setState({'status':'Inactive'}))
@@ -334,7 +339,7 @@ class App extends Component {
                             <this.makeCheckboxes></this.makeCheckboxes></>
                         }
 
-                        <p>{retPatentJSX}</p>
+                        <div>{retPatentJSX}</div>
                     </>
                     : null}
             </div>
@@ -506,10 +511,10 @@ class App extends Component {
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
                     <div>
-                        <this.getPatentData></this.getPatentData>
+                        {/*<this.getPatentData></this.getPatentData>*/}
                         {/*<this.Selectors></this.Selectors>*/}
                         {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
-                        {/*<Login_page googleLogin = {this.googleLogin}/>*/}
+                        <Login_page googleLogin = {this.googleLogin}/>
 
 
                     </div>

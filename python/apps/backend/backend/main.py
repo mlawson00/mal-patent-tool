@@ -23,7 +23,7 @@ from starlette.responses import (
     JSONResponse,
     RedirectResponse,
 )
-
+auth_req = google.auth.transport.requests.Request()
 from backend.auth import (
     providers as auth_providers,
     schemes as auth_schemes,
@@ -97,12 +97,14 @@ session = Session()
 log.info('Setting up app')
 
 import backend.inference_model
-
+import os
 
 app = FastAPI()
 global mc
 
+print('GOOGLE_APPLICATION_CREDENTIALS is ', os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
 #small
+
 mc = backend.inference_model.bqPatentPredictor(max_distance=1,
                                                bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",
                                                est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
@@ -408,6 +410,7 @@ async def give_likely_classes(probs: probabilityInput) -> probabilityInput:
     return_ob = labels_frame.loc[probs_array >= threshold]
     return_ob.loc[:, 'probability (%)'] = np.round(probs_array[probs_array >= threshold] * 100, 2)
     return_ob = return_ob.sort_values('probability (%)', ascending=False)
+    print(return_ob)
     return {return_ob.to_json(orient='records')}
 
 @app.post("/api/give_custom_embedding")
