@@ -139,7 +139,7 @@ class App extends Component {
             })
     }
 
-    getPatentData = () => {
+    GetPatentData = () => {
 
         const [searchTerm, setSearchTerm] = useState('')
         const [tokens, setTokens] = useState([])
@@ -328,19 +328,24 @@ class App extends Component {
                 <button onClick={evaluateSearchQuery}>Get Data</button>
                 <input id="search" type="text" onChange={handleChange}/>
                 {searchedTerm !== "" ?
-                    <><p>Searching for: <strong>{searchedTerm}</strong></p>
-                        <p>Tokens: {yikes}</p>
-                        <p>{probabilityJSX}</p>{decentAbstract &&
-                            <>
-                            <button onClick={getSimilarPatents}>Get Similar Patents</button>
-                            <this.yearDropDown id='start_year'/>
-                            <this.yearDropDown id='end_year'/>
-                            <this.nDropDown id='n' min={1} max={5}/>
-                            <this.makeCheckboxes></this.makeCheckboxes></>
-                        }
+                    <>
+                        <p>Searching for: <strong>{searchedTerm}</strong></p>
 
-                        <div>{retPatentJSX}</div>
-                    </>
+                        <p>Tokens: {yikes}</p>
+
+                        <p>{probabilityJSX}</p>{decentAbstract &&
+
+                        {this.yearDropDown('start_year')}
+
+                        {this.yearDropDown('end_year')}
+
+                        {this.nDropDown('n',1,5)}
+
+                            {this.makeCheckboxes()}
+
+                            <button onClick={getSimilarPatents}>Get Similar Patents</button>
+                        }
+                        <div>{retPatentJSX}</div></>
                     : null}
             </div>
         )
@@ -385,6 +390,7 @@ class App extends Component {
         return (jsx)
     }
 
+
     checkboxClicker = (event) => {
         console.log(event)
         let buttons_state = this.state.country_ob
@@ -412,7 +418,7 @@ class App extends Component {
     }
 
 
-    nDropDown = (props) => {
+    nDropDown = (id,min,max) => {
 
 
         const onHandleChange = (evt) => {
@@ -421,10 +427,10 @@ class App extends Component {
 
         const thisYear = (new Date()).getFullYear();
 
-        const selectedYear = this.state[props.id]
+        const selectedYear = this.state[id]
 
-        let minOffset = props.min
-        let maxOffset = props.max
+        let minOffset = min
+        let maxOffset = max
         const options = [];
 
         for (let i = minOffset; i <= maxOffset; i++) {
@@ -432,10 +438,10 @@ class App extends Component {
             options.push(<option value={n}>{n}</option>);
         }
 
-        console.log('the probs id is', this.state[props.id])
+        console.log('the probs id is', this.state[id])
 
-        const jsx = <div>{props.id}:
-            <select value={this.state[props.id]} onChange={onHandleChange} name={props.id}>
+        const jsx = <div>{id}:
+            <select value={this.state[id]} onChange={onHandleChange} name={id}>
                 {options}
             </select>
         </div>;
@@ -443,7 +449,7 @@ class App extends Component {
         return jsx
     }
 
-    yearDropDown = (props) => {
+    yearDropDown = (id) => {
 
 
         const onHandleChange = (evt) => {
@@ -457,13 +463,13 @@ class App extends Component {
 
         // this.setState({'end_year': thisYear})
 
-        const selectedYear = this.state[props.id]
+        const selectedYear = this.state[id]
 
         let min_i = 0
         let max_i = 122
         const options = [];
-        console.log('the year dropdown props is', props['id'])
-        if (props['id'] === 'start_year') {
+        console.log('the year dropdown props is', id)
+        if (id === 'start_year') {
             console.log('!!!!! is was start_year')
             min_i = 1900
             max_i = this.state['end_year']
@@ -477,10 +483,10 @@ class App extends Component {
             options.push(<option value={i}>{i}</option>);
         }
 
-        console.log('the probs id is', this.state[props.id])
+        console.log('the probs id is', this.state[id])
 
-        const jsx = <div>{props.id}:
-            <select value={this.state[props.id]} onChange={onHandleChange} name={props.id}>
+        const jsx = <div>{id}:
+            <select value={this.state[id]} onChange={onHandleChange} name={id}>
                 {options}
             </select>
         </div>;
@@ -504,17 +510,17 @@ class App extends Component {
                         <div>
                             You are now logged in!
                         </div>
-                        <this.getPatentData></this.getPatentData>
+                        <this.GetPatentData/>
                         <div>
                             <button onClick={this.logout}>Logout</button>
                         </div>
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
                     <div>
-                        {/*<this.getPatentData></this.getPatentData>*/}
+                    <this.GetPatentData/>
                         {/*<this.Selectors></this.Selectors>*/}
                         {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
-                        <Login_page googleLogin = {this.googleLogin}/>
+                        {/*<Login_page googleLogin = {this.googleLogin}/>*/}
 
 
                     </div>
@@ -527,22 +533,5 @@ class App extends Component {
 
 }
 
-
-function Login(props) {
-    const googleLogin = () => {
-        var auth_provider = "google-oidc"
-        var login_url = props.producerLoginRedirectEndpoint + "?auth_provider=" + auth_provider
-        console.log("the login_ur is", login_url)
-        window.location.href = login_url
-    }
-
-    return (
-        <section>
-            <div>
-                <button onClick={googleLogin}>Login with Google</button>
-            </div>
-        </section>
-    );
-}
 
 export default App;
