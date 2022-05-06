@@ -7,7 +7,7 @@ echo "about the run uvicorn $(conda list)"
 cd apps
 echo "about the run uvicorn changed directory $(ls)"
 #uvicorn backend.main:app & nginx
-uvicorn backend.mainsmall:app & nginx -g 'daemon off;'
+uvicorn backend.mainsmall:app --host 0.0.0.0 --port 8000 & nginx -g 'daemon off;'
 
 #uvicorn backend.mainsmall:app --host 0.0.0.0 --port 8080
 #uvicorn backend.main:app
