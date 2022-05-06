@@ -83,12 +83,7 @@ class BERT_input(BaseModel):
     input_type_ids: list
     input_word_ids: list
 
-
-# import google.cloud.logging as logging
-
 logger = log.getLogger(__name__)
-# logging_client = logging.Client()
-# logging_client.setup_logging()
 
 log.info('Setting up sql')
 Base.metadata.create_all(engine)
@@ -97,23 +92,15 @@ session = Session()
 log.info('Setting up app')
 
 import backend.inference_model
-import os
 
 app = FastAPI()
 global mc
 
-#small
 
 mc = backend.inference_model.bqPatentPredictor(max_distance=1,
                                                bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",
                                                est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
 
-# big
-# mc = backend.inference_model.bqPatentPredictor(max_distance=1,
-#                                               bq_table=f"mal-l7.mal_l7_us.c367b2b5091e4c0695b965b92ae57f9e",
-#                                               est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/063417aefb1345a4a98bbfed0210760c/artifacts/embedding_normalisiation.csv')
-
-# Allow CORS. DON'T do that on production!
 origins = [
     config.FRONTEND_URL
 ]
