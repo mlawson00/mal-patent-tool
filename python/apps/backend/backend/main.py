@@ -102,7 +102,6 @@ import os
 app = FastAPI()
 global mc
 
-print('GOOGLE_APPLICATION_CREDENTIALS is ', os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
 #small
 
 mc = backend.inference_model.bqPatentPredictor(max_distance=1,
@@ -408,8 +407,8 @@ async def give_likely_classes(probs: probabilityInput) -> probabilityInput:
     raw_data = jsonable_encoder(probs.probs)[0]
     probs_array = np.array(raw_data)
     return_ob = labels_frame.loc[probs_array >= threshold]
-    return_ob.loc[:, 'probability (%)'] = np.round(probs_array[probs_array >= threshold] * 100, 2)
-    return_ob = return_ob.sort_values('probability (%)', ascending=False)
+    return_ob.loc[:, 'probability'] = np.round(probs_array[probs_array >= threshold] * 100, 2)
+    return_ob = return_ob.sort_values('probability', ascending=False)
     print(return_ob)
     return {return_ob.to_json(orient='records')}
 

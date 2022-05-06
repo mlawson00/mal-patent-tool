@@ -43,7 +43,7 @@ class App extends Component {
         },
         start_year: 1900,
         end_year: 2022,
-        status:"Inactive"
+        status: "Inactive"
     }
 
     componentDidMount() {
@@ -190,13 +190,13 @@ class App extends Component {
             }
 
             fetch('api/give_similar_patents_bq', requestOptions).then((response) => {
-                this.setState({'status':'Retrieving similar patents'}, console.log('updated status'))
+                this.setState({'status': 'Retrieving similar patents'}, console.log('updated status'))
                 if (!response.ok) {
                     console.log(response)
                     const bad_news = <div>Unfortunately, this did not work. Perhaps altering your query parameters would
                         help?</div>
                     setRetPatentJSX(bad_news)
-                    this.setState({'status':'Inactive'})
+                    this.setState({'status': 'Inactive'})
                     // throw Error(response.statusText);
                 }
                 return response;
@@ -212,14 +212,14 @@ class App extends Component {
                     var filing_date = new Date(item.filing_date)
                     var grant_date = new Date(item.grant_date)
 
-                    return(
+                    return (
 
                         <><h2>{item.publication_number}</h2>
-                        <h2>Title: {item.title}</h2>
+                            <h2>Title: {item.title}</h2>
                             <div>Estimated Match: {Math.round((1 - item.cosine_distance) * 100, 4)}%)</div>
                             <div>link: <a href={addr} target="_blank">{addr}</a></div>
-                            <div>filing date: {filing_date.toDateString() }</div>
-                            <div>grant date: {grant_date.toDateString() }</div>
+                            <div>filing date: {filing_date.toDateString()}</div>
+                            <div>grant date: {grant_date.toDateString()}</div>
                             <div>country: {this.state['country_ob'][item.country_code]['name']}</div>
                             <div>kind: {item.kind_code}</div>
                             <h3>Abstract</h3>
@@ -228,7 +228,7 @@ class App extends Component {
                     )
                 })
                 setRetPatentJSX(<>{patent_data}</>)
-            }).then(this.setState({'status':'Inactive'}), console.log('updated status'))
+            }).then(this.setState({'status': 'Inactive'}), console.log('updated status'))
         }
 
 
@@ -244,22 +244,23 @@ class App extends Component {
                     'probs': response.probs
                 })
             }
-            this.setState({'status':'looking up likely CPC4 class names'})
+            this.setState({'status': 'looking up likely CPC4 class names'})
             fetch('api/give_likely_classes', requestOptions)
-                .then((response) => {console.log("I got a response from give likely classes")
+                .then((response) => {
+                    console.log("I got a response from give likely classes")
                     setDecentAbstract(false)
                     setProbabilityJSX('Loading');
                     return (response.json())
                 })
-                .then((prob_list) => handleProbList(prob_list)).then(this.setState({'status':'Inactive'}))
+                .then((prob_list) => handleProbList(prob_list)).then(this.setState({'status': 'Inactive'}))
         }
 
         const makeProbEntry = (prob_row) => {
             console.log(prob_row)
             const prob_jsx = <p>
-                 <strong>{prob_row.CPC4}: </strong>
-                 {prob_row.title}: - <strong>{prob_row['probability (%)']}%</strong>
-             </p>
+                <strong>{prob_row.CPC4}: </strong>
+                {prob_row.title}: - <strong>{prob_row['probability (%)']}%</strong>
+            </p>
             // return (prob_jsx)
         }
 
@@ -269,16 +270,17 @@ class App extends Component {
             if (it[0].length === 0) {
                 setDecentAbstract(false)
                 setProbabilityJSX('It is unlikely that the query you have provided adequately resembles a patent abstract');
-            }
-            else {
+            } else {
                 setDecentAbstract(true)
                 setProbabilityJSX(it[0].map((item) => makeProbEntry(item)));
             }
             console.log(it)
 
-            prob_list.map((item)=> console.log(item.id))
+            prob_list.map((item) => console.log(item.id))
             console.log(prob_list[0])
-            prob_list.map((entry)=> {console.log(entry)})
+            prob_list.map((entry) => {
+                console.log(entry)
+            })
         }
 
         const processResponse = (response) => {
@@ -296,13 +298,13 @@ class App extends Component {
                     'input_word_ids': response.inputs.input_word_ids
                 })
             }
-            this.setState({'status':'retrieving patent CPC4 probabilities'})
+            this.setState({'status': 'retrieving patent CPC4 probabilities'})
             fetch('api/get_BERT_probs', requestOptions)
                 .then((response) => response.json())
                 .then((response) => {
                     giveProbs(response);
                     getCustomEmbeddings(response)
-                }).then(this.setState({'status':'Inactive'}))
+                }).then(this.setState({'status': 'Inactive'}))
         }
 
         const evaluateSearchQuery = () => {
@@ -313,43 +315,45 @@ class App extends Component {
                 body: JSON.stringify({'abstract': searchTerm})
             }
             console.log(searchTerm)
-            this.setState({'status':'tokenizing abstract'})
+            this.setState({'status': 'tokenizing abstract'})
             fetch('api/abstract_search', requestOptions).then((response) => response.json()).then((response => processResponse(response)))
-                .then(() => setSearchedTerm(searchTerm)).then(this.setState({'status':'Inactive'}))
+                .then(() => setSearchedTerm(searchTerm)).then(this.setState({'status': 'Inactive'}))
         }
 
         const yikes = tokens.map(name => <strong>{name} </strong>)
 
+        console.log('probabilityJSX is ', probabilityJSX)
+
 
         return (
+
             <div>
                 <h1>Welcome {this.state.userName}</h1>
                 <p>Patent Tool Status: <strong>{this.state.status}</strong></p>
                 <button onClick={evaluateSearchQuery}>Get Data</button>
                 <input id="search" type="text" onChange={handleChange}/>
-                {searchedTerm !== "" ?
-                    <>
-                        <p>Searching for: <strong>{searchedTerm}</strong></p>
+                {searchedTerm !== "" ? <>
+                    <p>Searching for: <strong>{searchedTerm}</strong></p>
+                    <p>Tokens: {yikes}</p>
+                    {decentAbstract && <>
+                        <p>probabilityJSX</p>
+                        <p><button onClick={getSimilarPatents}>Get Similar Patents</button></p>
+                        <p>{this.yearDropDown('start_year')}</p>
+                        <p>{this.yearDropDown('end_year')}</p>
+                        <p>{this.nDropDown('n',1,5)}</p>
+                        {this.makeCheckboxes()}
+                        <p>{retPatentJSX}</p>
+                    </>}
 
-                        <p>Tokens: {yikes}</p>
 
-                        <p>{probabilityJSX}</p>{decentAbstract &&
-
-                        {this.yearDropDown('start_year')}
-
-                        {this.yearDropDown('end_year')}
-
-                        {this.nDropDown('n',1,5)}
-
-                            {this.makeCheckboxes()}
-
-                            <button onClick={getSimilarPatents}>Get Similar Patents</button>
-                        }
-                        <div>{retPatentJSX}</div></>
-                    : null}
+                </> : null}
             </div>
+
         )
+
+
     }
+
 
     Selectors = (props) => {
 
@@ -418,7 +422,7 @@ class App extends Component {
     }
 
 
-    nDropDown = (id,min,max) => {
+    nDropDown = (id, min, max) => {
 
 
         const onHandleChange = (evt) => {
@@ -517,10 +521,10 @@ class App extends Component {
                     </div> :
                     //  this is the pair of login boxes, maybe could be fleshed out more!
                     <div>
-                    <this.GetPatentData/>
+                        {/*<this.GetPatentData/>*/}
                         {/*<this.Selectors></this.Selectors>*/}
                         {/*<input type="checkbox" id='yo' name='uouio' checked={true}/>*/}
-                        {/*<Login_page googleLogin = {this.googleLogin}/>*/}
+                        <Login_page googleLogin = {this.googleLogin}/>
 
 
                     </div>
