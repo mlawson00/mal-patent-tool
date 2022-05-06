@@ -17,12 +17,12 @@ class BqPatentPredictor:
         self.where_statements = where_statements
         self.costs = 0
 
-        out = pd.read_csv(est_file_path, index_col=0)
-        good_cols = np.where(out.loc['stdev'] >= 0.01)[0]
+        # out = pd.read_csv(est_file_path, index_col=0)
+        # good_cols = np.where(out.loc['stdev'] >= 0.01)[0]
         original_scaler = StandardScaler()
-        original_scaler.mean_ = out.loc['mean'].values[good_cols]
-        original_scaler.scale_ = out.loc['stdev'].values[good_cols]
-        original_scaler.n_samples_seen_ = 1
+        # original_scaler.mean_ = out.loc['mean'].values[good_cols]
+        # original_scaler.scale_ = out.loc['stdev'].values[good_cols]
+        # original_scaler.n_samples_seen_ = 1
     #     ct = ColumnTransformer([("remove_useless_cols", 'passthrough', good_cols)], remainder='drop')
     #     ct.fit([np.ones(64)])
     #     self.pipe = Pipeline(
