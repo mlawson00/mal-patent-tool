@@ -8,6 +8,7 @@ dependencies:
   - python=3.9
   - pycocotools
   - codecov
+  - psycopg2
   - pip
   - pip:
     - oauthlib
@@ -17,7 +18,6 @@ dependencies:
     - msal
     - msgpack-python
     - sqlalchemy
-    - psycopg2
     - tf-models-official==2.7.0
     - pandas-gbq
     - google-cloud-bigquery
