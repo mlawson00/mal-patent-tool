@@ -1,28 +1,24 @@
-from fastapi import FastAPI
-from official.nlp import bert
-import official.nlp.bert.tokenization
-import tensorflow_text
-import requests
 import json
-from pydantic import BaseModel
+
 import google.auth.transport.requests
 import google.oauth2.id_token
 import numpy as np
-from fastapi import FastAPI, HTTPException
-
-from fastapi.encoders import jsonable_encoder
+import official.nlp.bert.tokenization
+import requests
 from fastapi import (
     Depends,
-    FastAPI,
     Request,
-    status,
 )
+from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
+from official.nlp import bert
+from pydantic import BaseModel
 from starlette.responses import (
     JSONResponse,
     RedirectResponse,
 )
+
 auth_req = google.auth.transport.requests.Request()
 from backend.auth import (
     providers as auth_providers,
@@ -36,12 +32,10 @@ from backend.exceptions import (
     exception_handling,
 )
 from backend.models.db_models import (
-    InternalUser, postgresInternalUser
+    InternalUser
 )
 from backend.models.auth_models import (
     ExternalAuthToken,
-    ExternalUser,
-    postgresExternalUser,
     InternalAccessTokenData,
 )
 
@@ -53,6 +47,9 @@ import uvicorn
 from fastapi import FastAPI
 
 import logging as log
+import backend.inference_model
+import pandas as pd
+
 
 
 class custom_bert_encoder:
@@ -91,7 +88,7 @@ log.info('Setting up session')
 session = Session()
 log.info('Setting up app')
 
-import backend.inference_model
+
 
 app = FastAPI()
 global mc
@@ -340,7 +337,7 @@ class PredictorInput(BaseModel):
     query:dict
 
 
-import pandas as pd
+
 labels_frame = pd.read_csv('backend/labels_group_id.tsv', sep='\t')
 threshold=0.2
 
