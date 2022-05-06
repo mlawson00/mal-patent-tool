@@ -1,3 +1,5 @@
+from fastapi import FastAPI
+app = FastAPI() #includes logging, just put at the start to see whats wrong?
 import logging as log
 logger = log.getLogger(__name__)
 log.info('Setting up the log')
@@ -7,7 +9,7 @@ except Exception as e:
     log.warning(e)
 import json
 import uvicorn
-from fastapi import FastAPI
+
 
 
 import pandas as pd
@@ -112,7 +114,12 @@ log.info('Setting up session')
 session = Session()
 log.info('Setting up app')
 
-app = FastAPI()
+try:
+    global mc
+    mc = backend.inference_model.BqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
+except Exception as e:
+    log.warning(e)
+
 
 # global mc
 # mc = backend.inference_model.BqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
@@ -357,23 +364,25 @@ def query_generator(raw_query: dict):
     return cleaned_query
 
 
-# @app.post("/api/give_similar_patents_bq")
-# async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
-#     cleaned_query = query_generator(input_args.query)
-#     print(cleaned_query)
-#     mc.where_statements = cleaned_query
-#     global mc
-#     try:
-#         df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
-#         print(f'that cost {cost}p, ouch')
-#         print(df)
-#
-#         return ({'predictions': df.to_json(orient='records'), 'cost': np.round(cost, 2)})
-#
-#     except:
-#         raise HTTPException(status_code=404,
-#                             detail=f"Items not found, expected query costs {mc.costs * 500 / (1024 ** 4)}p")
+try:
+    @app.post("/api/give_similar_patents_bq")
+    async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
+        cleaned_query = query_generator(input_args.query)
+        print(cleaned_query)
+        mc.where_statements = cleaned_query
+        global mc
+        try:
+            df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
+            print(f'that cost {cost}p, ouch')
+            print(df)
 
+            return ({'predictions': df.to_json(orient='records'), 'cost': np.round(cost, 2)})
+
+        except:
+            raise HTTPException(status_code=404,
+                                detail=f"Items not found, expected query costs {mc.costs * 500 / (1024 ** 4)}p")
+except Exception as e:
+    log.warning(e)
 
 @app.post("/api/give_likely_classes")
 async def give_likely_classes(probs: probabilityInput) -> probabilityInput:
