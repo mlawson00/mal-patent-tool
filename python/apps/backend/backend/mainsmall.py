@@ -115,8 +115,7 @@ session = Session()
 log.info('Setting up app')
 
 try:
-    global mc
-    mc = backend.inference_model.BqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
+    app.mc = backend.inference_model.BqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
 except Exception as e:
     log.warning(e)
 
@@ -369,10 +368,9 @@ try:
     async def give_similar_patents_bq(input_args: PredictorInput) -> PredictorInput:
         cleaned_query = query_generator(input_args.query)
         print(cleaned_query)
-        mc.where_statements = cleaned_query
-        global mc
+        app.mc.where_statements = cleaned_query
         try:
-            df, cost = mc.bq_get_nearest_patents(np.array(input_args.embedding))
+            df, cost = app.mc.bq_get_nearest_patents(np.array(input_args.embedding))
             print(f'that cost {cost}p, ouch')
             print(df)
 
