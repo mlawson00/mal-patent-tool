@@ -101,23 +101,24 @@ class custom_bert_encoder:
 
 
 try:
+    log.info('about in import the inference model')
     import backend.inference_model
+    log.info('successfully import inference model')
 except Exception as e:
     log.warning(e)
 
 
 bert_encoder = custom_bert_encoder('backend/vocab.txt')
+log.info('imported the bert encoder')
 
 
+log.info('about to connect to sql')
 Base.metadata.create_all(engine)
 log.info('Setting up session')
 session = Session()
 log.info('Setting up app')
 
-try:
-    app.mc = backend.inference_model.BqPatentPredictor(max_distance=1,bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
-except Exception as e:
-    log.warning(e)
+
 
 
 # global mc
@@ -134,6 +135,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+log.info('setting up cookie schemes')
 csrf_token_redirect_cookie_scheme = auth_schemes.CSRFTokenRedirectCookieBearer()
 auth_token_scheme = auth_schemes.AuthTokenBearer()
 access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
@@ -144,6 +146,14 @@ access_token_cookie_scheme = auth_schemes.AccessTokenCookieBearer()
 async def startup_event():
     """ Startup functionality """
     log.info('startup up app yo ho')
+    try:
+        log.info('about to build mc instance')
+        app.mc = backend.inference_model.BqPatentPredictor(max_distance=1,
+                                                           bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",
+                                                           est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
+        log.info('built mc instance')
+    except Exception as e:
+        log.warning(e)
 
 
 @app.on_event("shutdown")
