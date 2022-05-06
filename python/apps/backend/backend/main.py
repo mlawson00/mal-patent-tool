@@ -106,7 +106,7 @@ app = FastAPI()
 global mc
 
 
-mc = backend.inference_model.bqPatentPredictor(max_distance=1,
+mc = backend.inference_model.BqPatentPredictor(max_distance=1,
                                                bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",
                                                est_file_path = 'gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
 
