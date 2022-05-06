@@ -259,9 +259,9 @@ class App extends Component {
             console.log(prob_row)
             const prob_jsx = <p>
                 <strong>{prob_row.CPC4}: </strong>
-                {prob_row.title}: - <strong>{prob_row['probability (%)']}%</strong>
+                {prob_row.title}: - <strong>{prob_row['probability']}%</strong>
             </p>
-            // return (prob_jsx)
+            return (prob_jsx)
         }
 
         const handleProbList = (prob_list) => {
@@ -336,7 +336,7 @@ class App extends Component {
                     <p>Searching for: <strong>{searchedTerm}</strong></p>
                     <p>Tokens: {yikes}</p>
                     {decentAbstract && <>
-                        <p>probabilityJSX</p>
+                        <p>{probabilityJSX}</p>
                         <p><button onClick={getSimilarPatents}>Get Similar Patents</button></p>
                         <p>{this.yearDropDown('start_year')}</p>
                         <p>{this.yearDropDown('end_year')}</p>
