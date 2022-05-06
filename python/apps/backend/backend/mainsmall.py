@@ -1,7 +1,14 @@
+import logging as log
+logger = log.getLogger(__name__)
+log.info('Setting up the log')
+try:
+    import jsond
+except Exception as e:
+    log.warning(e)
 import json
 import uvicorn
 from fastapi import FastAPI
-import logging as log
+
 
 import pandas as pd
 import google.auth.transport.requests
@@ -91,14 +98,15 @@ class custom_bert_encoder:
         return {"text": text, "input_mask": [pad_masks], "input_type_ids": [segment_ids], "input_word_ids": [tokens]}
 
 
+try:
+    import backend.inference_model
+except Exception as e:
+    log.warning(e)
 
-import backend.inference_model
 
 bert_encoder = custom_bert_encoder('backend/vocab.txt')
 
-logger = log.getLogger(__name__)
 
-log.info('Setting up sql')
 Base.metadata.create_all(engine)
 log.info('Setting up session')
 session = Session()
