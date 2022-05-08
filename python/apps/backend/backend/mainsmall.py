@@ -149,8 +149,8 @@ async def startup_event():
     try:
         log.info('about to build mc instance')
         app.mc = backend.inference_model.BqPatentPredictor(max_distance=1,
-                                                           bq_table=f"mal-l7.mal_l7_us.c064bcccce114c9a8cfa67e36d0580cf",
-                                                           est_file_path='gs://mal-l7-mlflow/mlflow-artifacts/0/671fc6ef094d4ee3b52fc476a768ccac/artifacts/embedding_normalisiation.csv')
+                                                           bq_table=os.environ['bq_table'],
+                                                           est_file_path=os.environ['est_file_path'])
         log.info('built mc instance')
     except Exception as e:
         log.warning(e)

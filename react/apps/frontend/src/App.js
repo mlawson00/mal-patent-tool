@@ -336,8 +336,8 @@ class App extends Component {
                 {searchedTerm !== "" ? <>
                     <p>Searching for: <strong>{searchedTerm}</strong></p>
                     <p>Tokens: {yikes}</p>
+                    <p>{probabilityJSX}</p>
                     {decentAbstract && <>
-                        <p>{probabilityJSX}</p>
                         <p><button onClick={getSimilarPatents}>Get Similar Patents</button></p>
                         <p>{this.yearDropDown('start_year')}</p>
                         <p>{this.yearDropDown('end_year')}</p>
